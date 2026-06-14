@@ -52,7 +52,7 @@ export function useFlutterwaveFunding() {
         currency:        'NGN',
         payment_options: 'card,banktransfer,ussd',
         customer: {
-          email:        userEmail,
+          email:        userEmail || `user-${userId}@primeconnect.ng`,
           phone_number: userPhone,
           name:         userName,
         },

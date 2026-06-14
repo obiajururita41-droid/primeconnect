@@ -222,7 +222,7 @@ const Dashboard = () => {
                 : avatarInitials}
             </div>
             <div>
-              <p className="font-bold text-gray-900 text-sm">Good afternoon, {firstName} 👋</p>
+              <p className="font-bold text-gray-900 text-sm">{new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 17 ? "Good afternoon" : "Good evening"}, {firstName} 👋</p>
               <p className="text-xs text-gray-400">Welcome back to PrimeConnect</p>
               <div className="flex items-center gap-1 mt-0.5">
                 <CheckCircle className="w-3 h-3 text-blue-500" />
