@@ -56,7 +56,7 @@ export default function WithdrawalPage() {
   async function fetchBanks() {
     const { data, error } = await supabase.functions.invoke('flutterwave-get-banks');
     if (!error && data?.banks) {
-      setBanks(data.banks);
+      setBanks(data.banks.sort((a: Bank, b: Bank) => a.name.localeCompare(b.name)));
     }
   }
 
