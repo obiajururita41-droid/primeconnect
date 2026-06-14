@@ -12,6 +12,7 @@ interface Profile {
   is_verified: boolean;
   is_active: boolean;
   referral_code: string | null;
+  referral_count?: number;
   referred_by: string | null;
   referral_earnings: number | null;
   loyalty_points: number | null;

@@ -6,7 +6,7 @@ import {
   Users, Wallet, ArrowUpRight, Gift, RefreshCw,
   CheckCircle, XCircle, Search, TrendingUp,
   Phone, Wifi, MessageSquare,
-  Bell, ChevronRight, Activity
+  Bell, ChevronRight, Activity, Share2
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
@@ -405,7 +405,7 @@ export default function AdminDashboard() {
                 className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-blue-500"
               />
             </div>
-            {tab === 'transactions' && (
+            {(tab as string) === 'transactions' && (
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
