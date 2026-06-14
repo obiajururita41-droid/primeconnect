@@ -72,15 +72,6 @@ export default function VirtualSMSPage() {
   const [viewingSMS, setViewingSMS] = useState<Order | null>(null);
   const autoCheckRef = useRef<any>(null);
 
-  useEffect(() => {
-    if (order && !order.sms) {
-      autoCheckRef.current = setInterval(() => {
-        handleCheckSMS();
-      }, 30000);
-    }
-    return () => clearInterval(autoCheckRef.current);
-  }, [order]);
-
   const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
   const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
   const FUNCTION_URL = SUPABASE_URL + "/functions/v1/virtual-sms";
