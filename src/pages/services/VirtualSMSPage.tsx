@@ -120,7 +120,7 @@ export default function VirtualSMSPage() {
       setSuccess("Number activated! Waiting for SMS...");
     } else {
       await supabase.from("transactions").update({ status: "failed" }).eq("reference", reference);
-      setError(data?.message || "No numbers available for this country. Please try another country.");
+      setError(data?.error || data?.message || "No numbers available right now. Please try again later or choose another country.");
     }
     setLoading(false);
   };
