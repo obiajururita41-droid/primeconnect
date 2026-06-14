@@ -87,7 +87,7 @@ export default function ScanPayPage() {
       await html5QrCode.start(
         { facingMode: 'environment' },
         { fps: 10, qrbox: { width: 200, height: 200 }, aspectRatio: 1.0 },
-        (decodedText) => {
+        (decodedText: string) => {
           setScannedData(decodedText);
           setScannerStatus('success');
           stopScanner();
