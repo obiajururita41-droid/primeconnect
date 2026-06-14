@@ -14,7 +14,7 @@ export default function ScanPayPage() {
   const [scannerStatus, setScannerStatus] = useState<ScannerStatus>('idle');
   const [scannedData, setScannedData] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string>('');
-  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const scannerRef = useRef<any>(null);
   const scannerDivId = 'html5qr-scanner';
 
   const paymentCode = profile?.referral_code ?? user?.id?.slice(0, 8).toUpperCase() ?? 'XXXXXXXX';
