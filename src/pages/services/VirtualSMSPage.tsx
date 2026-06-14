@@ -111,9 +111,7 @@ export default function VirtualSMSPage() {
       amount: priceInNaira, description: "Virtual SMS - " + selectedService + " (" + selectedCountry.name + ")",
       reference, metadata: { service: selectedService, country: selectedCountry.code },
     });
-    const priceData = await callFunction({ action: "get_prices", country: selectedCountry.code, service: selectedService });
-    const bestOp = priceData?.[selectedCountry.code]?.[selectedService]?._bestOp || 'any';
-    const data = await callFunction({ action: "buy_number", country: selectedCountry.code, service: selectedService, operator: bestOp });
+    const data = await callFunction({ action: "buy_number", country: selectedCountry.code, service: selectedService, operator: "any" });
     if (data?.phone) {
       const newOrder: Order = { ...data, country: selectedCountry.name, service: selectedService, price: priceInNaira, status: "active", created_at: new Date().toISOString() };
       setOrder(newOrder);
