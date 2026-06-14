@@ -9,63 +9,53 @@ const BASE_URL = 'https://5sim.net/v1';
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
-  const { action, country, service, orderId } = await req.json();
-
-  let url = '';
-  let options: any = {
-    headers: {
+  try {
+    const { action, country, service, orderId, operator } = await req.json();
+    const authHeaders = {
       'Authorization': `Bearer ${API_KEY}`,
       'Accept': 'application/json',
-    },
-  };
+    };
 
-  if (action === 'get_prices') {
-    url = `${BASE_URL}/guest/prices?country=${country}&product=${service}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    
-    // Find cheapest operator with available numbers
-    const countryData = data?.[country]?.[service];
-    let cheapestCost = null;
-    if (countryData) {
-      const operators = Object.values(countryData) as any[];
-      const available = operators.filter((op: any) => op.count > 0);
-      if (available.length > 0) {
-        cheapestCost = Math.min(...available.map((op: any) => op.cost));
-      } else {
-        cheapestCost = Math.min(...operators.map((op: any) => op.cost));
+    if (action === 'get_prices') {
+      const res = await fetch(`${BASE_URL}/guest/prices?country=${country}&product=${service}`);
+      const data = await res.json();
+      const countryData = data?.[country]?.[service];
+      let bestCost = null;
+      let bestOp = 'any';
+      if (countryData) {
+        const ops = Object.entries(countryData);
+        const good = ops.filter((e) => e[1].count > 0 && !['virtual58','virtual4','virtual52'].includes(e[0]));
+        const pool = good.length > 0 ? good : ops.filter((e) => e[1].count > 0);
+        if (pool.length > 0) {
+          pool.sort((a, b) => (b[1].rate || 0) - (a[1].rate || 0));
+          bestCost = pool[0][1].cost;
+          bestOp = pool[0][0];
+        }
       }
+      const result = {};
+      if (bestCost !== null) result[country] = { [service]: { any: { cost: bestCost }, _bestOp: bestOp } };
+      return new Response(JSON.stringify(result), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+
+    } else if (action === 'buy_number') {
+      const op = operator || 'virtual34';
+      const res = await fetch(`${BASE_URL}/user/buy/activation/${country}/${op}/${service}`, { headers: authHeaders });
+      const data = await res.json();
+      return new Response(JSON.stringify(data), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+
+    } else if (action === 'check_sms') {
+      const res = await fetch(`${BASE_URL}/user/check/${orderId}`, { headers: authHeaders });
+      const data = await res.json();
+      const sms = (data.sms || []).map((s) => ({ code: s.code, text: s.text }));
+      return new Response(JSON.stringify({ sms }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+
+    } else if (action === 'cancel_order') {
+      const res = await fetch(`${BASE_URL}/user/cancel/${orderId}`, { headers: authHeaders });
+      return new Response(JSON.stringify(await res.json()), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
-    
-    // Return in format frontend expects
-    const result: any = {};
-    if (cheapestCost !== null) {
-      result[country] = { [service]: { any: { cost: cheapestCost } } };
-    }
-    
-    return new Response(JSON.stringify(result), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-    
-  } else if (action === 'buy_number') {
-    url = `${BASE_URL}/user/buy/activation/${country}/any/${service}`;
-  } else if (action === 'check_sms') {
-    url = `${BASE_URL}/user/check/${orderId}`;
-  } else if (action === 'cancel_order') {
-    url = `${BASE_URL}/user/cancel/${orderId}`;
+
+    return new Response(JSON.stringify({ error: 'Unknown action' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+
+  } catch(err) {
+    return new Response(JSON.stringify({ error: String(err) }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
-
-  const res = await fetch(url, options);
-  const data = await res.json();
-
-  if (action === 'check_sms') {
-    const sms = data.sms?.map((s: any) => ({ code: s.code, text: s.text })) || [];
-    return new Response(JSON.stringify({ sms }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
-
-  return new Response(JSON.stringify(data), {
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-  });
 });
