@@ -21,13 +21,38 @@ Deno.serve(async (req) => {
 
   if (action === 'get_prices') {
     url = `${BASE_URL}/guest/prices?country=${country}&product=${service}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    
+    // Find cheapest operator with available numbers
+    const countryData = data?.[country]?.[service];
+    let cheapestCost = null;
+    if (countryData) {
+      const operators = Object.values(countryData) as any[];
+      const available = operators.filter((op: any) => op.count > 0);
+      if (available.length > 0) {
+        cheapestCost = Math.min(...available.map((op: any) => op.cost));
+      } else {
+        cheapestCost = Math.min(...operators.map((op: any) => op.cost));
+      }
+    }
+    
+    // Return in format frontend expects
+    const result: any = {};
+    if (cheapestCost !== null) {
+      result[country] = { [service]: { any: { cost: cheapestCost } } };
+    }
+    
+    return new Response(JSON.stringify(result), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+    
   } else if (action === 'buy_number') {
     url = `${BASE_URL}/user/buy/activation/${country}/any/${service}`;
   } else if (action === 'check_sms') {
     url = `${BASE_URL}/user/check/${orderId}`;
   } else if (action === 'cancel_order') {
     url = `${BASE_URL}/user/cancel/${orderId}`;
-    options.method = 'GET';
   }
 
   const res = await fetch(url, options);

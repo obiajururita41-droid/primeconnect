@@ -101,7 +101,7 @@ export default function VirtualSMSPage() {
     if (!selectedService) return setError("Select a service first");
     if (!price) return setError("Price not available");
     const { data: wallet } = await supabase.from("wallets").select("id, balance").eq("user_id", user?.id).eq("is_active", true).single();
-    const priceInNaira = price * 1600 * 1.5;
+    const priceInNaira = price * 1600 * 1.3;
     if (!wallet || wallet.balance < priceInNaira) { setError("Insufficient balance. Need N" + priceInNaira.toFixed(2)); return; }
     setLoading(true);
     const reference = generateRef();
@@ -154,7 +154,7 @@ export default function VirtualSMSPage() {
   const filteredCountries = COUNTRY_LIST.filter(c => c.name.toLowerCase().includes(countrySearch.toLowerCase()));
   const activeNumbers = myNumbers.filter(n => n.status === "active");
   const expiredNumbers = myNumbers.filter(n => n.status === "expired");
-  const priceInNaira = price ? price * 1600 * 1.5 : null;
+  const priceInNaira = price ? price * 1600 * 1.3 : null;
 
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
