@@ -12,9 +12,18 @@ export default function ResetPassword() {
   const [sessionReady, setSessionReady] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSessionReady(!!session);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
+        setSessionReady(true);
+      }
     });
+
+    // Also check existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setSessionReady(true);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const handleSubmit = async () => {
@@ -57,7 +66,10 @@ export default function ResetPassword() {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           {!sessionReady ? (
-            <p className="text-sm text-gray-500 text-center py-4">Verifying reset link...</p>
+            <div className="text-center py-8">
+              <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+              <p className="text-sm text-gray-500">Verifying reset link...</p>
+            </div>
           ) : success ? (
             <div className="text-center py-4">
               <p className="text-sm text-green-600 font-medium mb-2">Password updated successfully!</p>
