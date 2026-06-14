@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { MessageSquare, Copy, CheckCircle, RefreshCw, X, AlertCircle, Search, ArrowLeft, Phone, Eye } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
@@ -70,6 +70,16 @@ export default function VirtualSMSPage() {
   const [success, setSuccess] = useState("");
   const [showCountryPicker, setShowCountryPicker] = useState(false);
   const [viewingSMS, setViewingSMS] = useState<Order | null>(null);
+  const autoCheckRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (order && !order.sms) {
+      autoCheckRef.current = setInterval(() => {
+        handleCheckSMS();
+      }, 30000);
+    }
+    return () => clearInterval(autoCheckRef.current);
+  }, [order]);
 
   const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
   const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
