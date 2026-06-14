@@ -119,7 +119,7 @@ export default function VirtualSMSPage() {
       setSuccess("Number activated! Waiting for SMS...");
     } else {
       await supabase.from("transactions").update({ status: "failed" }).eq("reference", reference);
-      setError(data?.message || "Failed to get number. Try again.");
+      setError(data?.message || "No numbers available for this country. Please try another country.");
     }
     setLoading(false);
   };
