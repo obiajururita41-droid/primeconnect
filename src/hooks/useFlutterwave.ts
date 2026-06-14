@@ -1,3 +1,4 @@
+
 import { useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
@@ -37,9 +38,8 @@ export function useFlutterwaveFunding() {
       reference,
       metadata:    { provider: 'flutterwave', email: userEmail },
     });
-
     if (txError) {
-      onError('Failed to initiate transaction. Please try again.');
+      onError(`TX Error: ${txError.message} | code: ${txError.code} | details: ${txError.details}`);
       return;
     }
 
