@@ -27,6 +27,7 @@ import WithdrawalPage from './pages/WithdrawalPage';
 import Settings from './pages/Settings';
 import NotificationsPage from './pages/NotificationsPage';
 import ScanPayPage from './pages/ScanPayPage';
+import PaymentVerifyPage from './pages/PaymentVerifyPage';
 
 function App() {
   return (
@@ -62,6 +63,7 @@ function App() {
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
           <Route path="/scan" element={<ProtectedRoute><ScanPayPage /></ProtectedRoute>} />
+          <Route path="/payment/verify" element={<ProtectedRoute><PaymentVerifyPage /></ProtectedRoute>} />
           <Route path="/admin" element={
             <ProtectedRoute>
               <AdminDashboard />

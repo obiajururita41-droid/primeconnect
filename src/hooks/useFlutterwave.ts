@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
@@ -38,8 +37,9 @@ export function useFlutterwaveFunding() {
       reference,
       metadata:    { provider: 'flutterwave', email: userEmail },
     });
+
     if (txError) {
-      onError(`TX Error: ${txError.message} | code: ${txError.code} | details: ${txError.details}`);
+      onError(`TX Error: ${txError.message}`);
       return;
     }
 
@@ -51,6 +51,7 @@ export function useFlutterwaveFunding() {
         amount,
         currency:        'NGN',
         payment_options: 'card,banktransfer,ussd',
+        redirect_url:    `${window.location.origin}/payment/verify?ref=${reference}`,
         customer: {
           email:        userEmail || `user-${userId}@primeconnect.ng`,
           phone_number: userPhone,
@@ -64,7 +65,6 @@ export function useFlutterwaveFunding() {
           if (response.status === 'successful') {
             const { data: sessionData } = await supabase.auth.getSession();
             const token = sessionData.session?.access_token;
-
             const { data, error } = await supabase.functions.invoke('flutterwave-verify-transaction', {
               headers: { Authorization: `Bearer ${token}` },
               body: {
@@ -72,17 +72,13 @@ export function useFlutterwaveFunding() {
                 tx_ref: response.tx_ref || reference,
               },
             });
-
             if (error || data?.error) {
               onError('Payment verification failed. Contact support. Ref: ' + reference);
             } else {
               onSuccess();
             }
           } else {
-            await supabase
-              .from('transactions')
-              .update({ status: 'failed' })
-              .eq('reference', reference);
+            await supabase.from('transactions').update({ status: 'failed' }).eq('reference', reference);
             onError('Payment was not completed.');
           }
         },
