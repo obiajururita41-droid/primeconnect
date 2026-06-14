@@ -75,13 +75,14 @@ const Dashboard = () => {
       airtime_to_cash_enabled: svc.airtime_to_cash_enabled ?? true,
       betting_enabled: svc.betting_enabled ?? true,
     });
-    const { data: w } = await supabase
+    const { data: w, error: walletErr } = await supabase
       .from('wallets')
       .select('id, balance, currency')
       .eq('user_id', user?.id)
       .eq('is_active', true)
       .single();
     if (w) setWallet(w);
+    if (walletErr) alert('WALLET ERROR: ' + JSON.stringify(walletErr) + ' | uid=' + String(user?.id));
 
     const { data: txns } = await supabase
       .from('transactions')
