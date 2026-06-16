@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Wallet, Plus, ArrowUpRight, ArrowDownLeft,
-  Copy, CheckCircle, Phone, Wifi, Tv, Zap, Gift, Users, Eye, EyeOff, X, AlertCircle, MessageSquare,
-  Bell, History, Send, QrCode, TrendingUp, CreditCard, Star
+  Copy, CheckCircle, Phone, Wifi, Tv, Zap, Users, Eye, EyeOff, X, AlertCircle, MessageSquare,
+  Bell, History, Send, QrCode, TrendingUp, CreditCard, PiggyBank, Star
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
@@ -57,7 +57,6 @@ function InsightsDashboard({ userId, referralEarnings }: { userId: string; refer
       if (desc.includes('airtime')) serviceCounts['Airtime'] = (serviceCounts['Airtime'] || 0) + 1;
       else if (desc.includes('data')) serviceCounts['Data'] = (serviceCounts['Data'] || 0) + 1;
       else if (desc.includes('virtual sms')) serviceCounts['Virtual SMS'] = (serviceCounts['Virtual SMS'] || 0) + 1;
-      else if (desc.includes('gift')) serviceCounts['Gift Cards'] = (serviceCounts['Gift Cards'] || 0) + 1;
       else if (desc.includes('bet') || desc.includes('sport')) serviceCounts['Bet Funding'] = (serviceCounts['Bet Funding'] || 0) + 1;
     });
     const mostUsed = Object.entries(serviceCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'None';
@@ -157,7 +156,6 @@ const Dashboard = () => {
   const [serviceSettings, setServiceSettings] = useState<Record<string, boolean>>({
     airtime_enabled: true,
     data_enabled: true,
-    giftcard_enabled: true,
     virtual_sms_enabled: true,
     bulk_sms_enabled: true,
     airtime_to_cash_enabled: true,
@@ -183,7 +181,6 @@ const Dashboard = () => {
     if (svc) setServiceSettings({
       airtime_enabled: svc.airtime_enabled ?? true,
       data_enabled: svc.data_enabled ?? true,
-      giftcard_enabled: svc.giftcard_enabled ?? true,
       virtual_sms_enabled: svc.virtual_sms_enabled ?? true,
       bulk_sms_enabled: svc.bulk_sms_enabled ?? true,
       airtime_to_cash_enabled: svc.airtime_to_cash_enabled ?? true,
@@ -282,7 +279,6 @@ const Dashboard = () => {
   const quickActions = [
     { label: 'Airtime',    icon: <Phone className="w-6 h-6" />,        color: 'bg-blue-600',   path: '/services/airtime' },
     { label: 'Data',       icon: <Wifi className="w-6 h-6" />,         color: 'bg-blue-600',   path: '/services/data' },
-    { label: 'Gift Cards', icon: <Gift className="w-6 h-6" />,         color: 'bg-purple-600', path: '/services/gift-card' },
     { label: 'Virtual SMS',icon: <MessageSquare className="w-6 h-6" />,color: 'bg-cyan-600',   path: '/services/virtual-sms' },
     { label: 'Bulk SMS',   icon: <Send className="w-6 h-6" />,         color: 'bg-teal-600',   path: '/services/bulk-sms' },
     { label: 'Fund Wallet',icon: <Plus className="w-6 h-6" />,         color: 'bg-blue-600',   path: null },
@@ -290,6 +286,10 @@ const Dashboard = () => {
     { label: 'Refer & Earn',icon: <Users className="w-6 h-6" />,       color: 'bg-pink-600',   path: '/referral' },
     { label: 'A2 Cash',    icon: <TrendingUp className="w-6 h-6" />,   color: 'bg-green-600',  path: '/services/airtime-to-cash' },
     { label: 'Bet Funding',icon: <Zap className="w-6 h-6" />,          color: 'bg-red-500',    path: '/services/betting' },
+    { label: 'TV Sub',      icon: <Tv className="w-6 h-6" />,          color: 'bg-pink-600',   path: '/services/tv-subscription' },
+    { label: 'Electricity', icon: <Zap className="w-6 h-6" />,          color: 'bg-yellow-500', path: '/services/electricity' },
+    { label: 'Virtual Card',icon: <CreditCard className="w-6 h-6" />,    color: 'bg-indigo-600', path: '/services/virtual-card' },
+    { label: 'Savings',     icon: <PiggyBank className="w-6 h-6" />,     color: 'bg-teal-600',   path: '/services/savings' },
   ];
 
   const firstName = profile?.full_name?.split(' ')?.[0] ?? 'User';
@@ -305,7 +305,6 @@ const Dashboard = () => {
     if (desc.includes('airtime')) return <Phone className="w-4 h-4 text-blue-500" />;
     if (desc.includes('data')) return <Wifi className="w-4 h-4 text-green-500" />;
     if (desc.includes('electricity') || desc.includes('power')) return <Zap className="w-4 h-4 text-yellow-500" />;
-    if (desc.includes('gift')) return <Gift className="w-4 h-4 text-purple-500" />;
     if (desc.includes('fund') || desc.includes('wallet') || desc.includes('transfer')) return <Wallet className="w-4 h-4 text-indigo-500" />;
     return txn.type === 'credit'
       ? <ArrowDownLeft className="w-4 h-4 text-green-500" />
@@ -317,7 +316,6 @@ const Dashboard = () => {
     if (desc.includes('airtime')) return 'bg-blue-50';
     if (desc.includes('data')) return 'bg-green-50';
     if (desc.includes('electricity') || desc.includes('power')) return 'bg-yellow-50';
-    if (desc.includes('gift')) return 'bg-purple-50';
     if (desc.includes('fund') || desc.includes('wallet') || desc.includes('transfer')) return 'bg-indigo-50';
     return txn.type === 'credit' ? 'bg-green-50' : 'bg-red-50';
   };
@@ -430,7 +428,6 @@ const Dashboard = () => {
             {quickActions.filter(action => {
               if (action.label === 'Airtime')      return serviceSettings.airtime_enabled;
               if (action.label === 'Data')         return serviceSettings.data_enabled;
-              if (action.label === 'Gift Cards')   return serviceSettings.giftcard_enabled;
               if (action.label === 'Virtual SMS')  return serviceSettings.virtual_sms_enabled;
               if (action.label === 'Bulk SMS')     return serviceSettings.bulk_sms_enabled;
               if (action.label === 'A2 Cash')      return serviceSettings.airtime_to_cash_enabled;

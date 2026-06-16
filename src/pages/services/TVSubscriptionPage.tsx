@@ -79,7 +79,7 @@ export default function TVSubscriptionPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-      <div className="bg-gradient-to-br from-blue-700 to-indigo-800 px-4 pt-12 pb-16">
+      <div className="bg-gradient-to-br from-blue-600 to-blue-700 px-4 pt-12 pb-16">
         <div className="max-w-md mx-auto flex items-center gap-3">
           <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
             <Tv className="w-5 h-5 text-white" />

@@ -73,8 +73,8 @@ export default function ElectricityPage() {
   if (token) return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl p-8 text-center max-w-sm w-full shadow-sm border border-gray-100">
-        <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Zap className="w-8 h-8 text-yellow-600" />
+        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Zap className="w-8 h-8 text-blue-600" />
         </div>
         <h2 className="text-xl font-bold text-gray-900 mb-1">Token Generated!</h2>
         <p className="text-gray-500 text-sm mb-5">Enter this token on your meter</p>
@@ -98,13 +98,13 @@ export default function ElectricityPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-      <div className="bg-gradient-to-br from-yellow-500 to-orange-600 px-4 pt-12 pb-16">
+      <div className="bg-gradient-to-br from-blue-600 to-blue-700 px-4 pt-12 pb-16">
         <div className="max-w-md mx-auto flex items-center gap-3">
           <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
             <Zap className="w-5 h-5 text-white" />
           </div>
           <div>
-            <p className="text-yellow-100 text-sm">Utility Payment</p>
+            <p className="text-blue-100 text-sm">Utility Payment</p>
             <p className="text-white font-bold text-lg">Electricity Token</p>
           </div>
         </div>
@@ -115,7 +115,7 @@ export default function ElectricityPage() {
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">Electricity Provider</label>
             <select value={provider} onChange={e => setProvider(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-yellow-500 bg-white">
+              className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 bg-white">
               <option value="">Select provider</option>
               {PROVIDERS.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
@@ -126,7 +126,7 @@ export default function ElectricityPage() {
             <div className="grid grid-cols-2 gap-2">
               {METER_TYPES.map(t => (
                 <button key={t} onClick={() => setMeterType(t)}
-                  className={`py-3 rounded-xl text-sm font-bold border-2 ${meterType === t ? 'border-yellow-500 bg-yellow-50 text-yellow-700' : 'border-gray-100 text-gray-500'}`}>
+                  className={`py-3 rounded-xl text-sm font-bold border-2 ${meterType === t ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-500'}`}>
                   {t}
                 </button>
               ))}
@@ -137,18 +137,18 @@ export default function ElectricityPage() {
             <label className="block text-sm font-semibold text-gray-700 mb-2">Meter Number</label>
             <input type="text" value={meterNumber} onChange={e => setMeterNumber(e.target.value)}
               placeholder="Enter meter number"
-              className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl font-mono focus:outline-none focus:border-yellow-500" />
+              className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl font-mono focus:outline-none focus:border-blue-500" />
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">Amount (₦)</label>
             <input type="number" value={amount} onChange={e => setAmount(e.target.value)}
               placeholder="Enter amount"
-              className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl text-xl font-bold focus:outline-none focus:border-yellow-500" />
+              className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl text-xl font-bold focus:outline-none focus:border-blue-500" />
             <div className="grid grid-cols-3 gap-2 mt-2">
               {QUICK_AMOUNTS.map(q => (
                 <button key={q} onClick={() => setAmount(String(q))}
-                  className={`py-2 rounded-xl text-xs font-bold border-2 ${amount === String(q) ? 'bg-yellow-500 text-white border-yellow-500' : 'bg-white text-gray-600 border-gray-100'}`}>
+                  className={`py-2 rounded-xl text-xs font-bold border-2 ${amount === String(q) ? 'bg-blue-600 text-white border-blue-500' : 'bg-white text-gray-600 border-gray-100'}`}>
                   ₦{q.toLocaleString()}
                 </button>
               ))}
@@ -158,7 +158,7 @@ export default function ElectricityPage() {
           {error && <div className="flex gap-2 p-3 bg-red-50 rounded-xl"><AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" /><p className="text-sm text-red-600">{error}</p></div>}
 
           <button onClick={handlePurchase} disabled={loading}
-            className="w-full py-4 bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-300 text-white font-bold rounded-xl flex items-center justify-center gap-2">
+            className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold rounded-xl flex items-center justify-center gap-2">
             {loading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><Zap className="w-5 h-5" />Purchase Token</>}
           </button>
         </div>

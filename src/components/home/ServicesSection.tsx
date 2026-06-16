@@ -1,14 +1,16 @@
 import { Link } from 'react-router-dom';
-import { Smartphone, Wifi, PiggyBank, MessageSquare, Tv, Zap, CreditCard, ArrowRight } from 'lucide-react';
+import { Smartphone, Wifi, Receipt, Tv, Zap, MessageSquare, Wallet, CreditCard, PiggyBank, ArrowRight } from 'lucide-react';
 
 const services = [
-  { icon: Smartphone, title: 'Airtime Purchase', desc: 'Buy airtime for all networks instantly at the best rates.', color: 'bg-blue-50 text-blue-600', route: '/services' },
-  { icon: Wifi, title: 'Data Subscription', desc: 'Subscribe to affordable data plans for all networks.', color: 'bg-green-50 text-green-600', route: '/services' },
-  { icon: PiggyBank, title: 'Savings + Interest', desc: 'Save money and earn interest automatically every month.', color: 'bg-emerald-50 text-emerald-600', route: '/services/savings' },
-  { icon: MessageSquare, title: 'Virtual SMS', desc: 'Get virtual numbers and receive SMS from any platform.', color: 'bg-orange-50 text-orange-600', route: '/services/virtual-sms' },
-  { icon: Tv, title: 'TV Subscription', desc: 'Pay DSTV, GOtv & StarTimes subscriptions instantly.', color: 'bg-indigo-50 text-indigo-600', route: '/services/tv-subscription' },
-  { icon: Zap, title: 'Electricity Token', desc: 'Buy prepaid electricity tokens for any meter nationwide.', color: 'bg-yellow-50 text-yellow-600', route: '/services/electricity' },
-  { icon: CreditCard, title: 'Virtual USD Card', desc: 'Create a USD card to shop globally — Amazon, Netflix & more.', color: 'bg-purple-50 text-purple-600', route: '/services/virtual-card' },
+  { icon: Smartphone, title: 'Airtime Purchase', desc: 'Buy airtime for all networks instantly at the best rates.', color: 'bg-blue-50 text-blue-600', route: '/services/airtime' },
+  { icon: Wifi, title: 'Data Subscription', desc: 'Subscribe to affordable data plans for all networks.', color: 'bg-green-50 text-green-600', route: '/services/data' },
+  { icon: Wallet, title: 'Wallet Funding', desc: 'Fund your wallet easily via bank transfer or card.', color: 'bg-purple-50 text-purple-600', route: '/dashboard' },
+  { icon: MessageSquare, title: 'Virtual SMS', desc: 'Send bulk SMS messages to any number nationwide.', color: 'bg-orange-50 text-orange-600', route: '/services/virtual-sms' },
+  { icon: Tv, title: 'TV Subscription', desc: 'Pay for DSTV, GoTV, Startimes and more with ease.', color: 'bg-pink-50 text-pink-600', route: '/services/tv-subscription' },
+  { icon: Zap, title: 'Electricity', desc: 'Buy prepaid and postpaid electricity tokens instantly.', color: 'bg-yellow-50 text-yellow-600', route: '/services/electricity' },
+  { icon: CreditCard, title: 'Virtual Card', desc: 'Create virtual USD/NGN cards for online payments.', color: 'bg-indigo-50 text-indigo-600', route: '/services/virtual-card' },
+  { icon: PiggyBank, title: 'Savings', desc: 'Grow your money with our flexible savings plans.', color: 'bg-teal-50 text-teal-600', route: '/services/savings' },
+  { icon: Receipt, title: 'Bill Payments', desc: 'Pay all your bills quickly and securely in one place.', color: 'bg-teal-50 text-teal-600', route: '/services' },
 ];
 
 const ServicesSection = () => {
