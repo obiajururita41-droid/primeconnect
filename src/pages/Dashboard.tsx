@@ -26,6 +26,120 @@ interface Transaction {
 
 const QUICK_AMOUNTS = [500, 1000, 2000, 5000, 10000, 20000];
 
+
+/* ---------------- Transaction Insights ---------------- */
+function InsightsDashboard({ userId, referralEarnings }: { userId: string; referralEarnings: number }) {
+  const [insights, setInsights] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { fetchInsights(); }, [userId]);
+
+  async function fetchInsights() {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+    const { data: txns } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (!txns) { setLoading(false); return; }
+
+    const monthTxns = txns.filter(t => t.created_at >= startOfMonth);
+    const totalSpent = monthTxns.filter(t => t.type === 'debit' && t.status === 'success').reduce((s, t) => s + Number(t.amount), 0);
+    const totalFunded = monthTxns.filter(t => t.type === 'credit' && t.status === 'success').reduce((s, t) => s + Number(t.amount), 0);
+
+    // Most used service
+    const serviceCounts: Record<string, number> = {};
+    txns.forEach(t => {
+      const desc = (t.description || '').toLowerCase();
+      if (desc.includes('airtime')) serviceCounts['Airtime'] = (serviceCounts['Airtime'] || 0) + 1;
+      else if (desc.includes('data')) serviceCounts['Data'] = (serviceCounts['Data'] || 0) + 1;
+      else if (desc.includes('virtual sms')) serviceCounts['Virtual SMS'] = (serviceCounts['Virtual SMS'] || 0) + 1;
+      else if (desc.includes('gift')) serviceCounts['Gift Cards'] = (serviceCounts['Gift Cards'] || 0) + 1;
+      else if (desc.includes('bet') || desc.includes('sport')) serviceCounts['Bet Funding'] = (serviceCounts['Bet Funding'] || 0) + 1;
+    });
+    const mostUsed = Object.entries(serviceCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'None';
+
+    // Last 7 days activity
+    const last7 = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      const dateStr = d.toISOString().split('T')[0];
+      const dayTxns = txns.filter(t => t.created_at.startsWith(dateStr) && t.type === 'debit');
+      return { day: d.toLocaleDateString('en', { weekday: 'short' }), amount: dayTxns.reduce((s, t) => s + Number(t.amount), 0) };
+    });
+
+    setInsights({ totalSpent, totalFunded, mostUsed, last7, totalTxns: txns.length });
+    setLoading(false);
+  }
+
+  if (loading) return (
+    <div style={{ margin: '0 16px 16px', background: '#fff', borderRadius: 20, padding: 20, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+      <div style={{ height: 14, background: '#E2E8F0', borderRadius: 8, width: '40%', marginBottom: 16 }} />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        {[1,2,3,4].map(i => <div key={i} style={{ height: 70, background: '#E2E8F0', borderRadius: 14 }} />)}
+      </div>
+    </div>
+  );
+
+  if (!insights) return null;
+
+  const maxAmount = Math.max(...insights.last7.map((d: any) => d.amount), 1);
+
+  return (
+    <div style={{ margin: '0 16px 16px', background: '#fff', borderRadius: 20, padding: 20, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div>
+          <p style={{ fontWeight: 800, fontSize: 15, color: '#111827' }}>Transaction Insights</p>
+          <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>This month overview</p>
+        </div>
+        <div style={{ background: '#EFF6FF', borderRadius: 10, padding: '4px 10px' }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#2563EB' }}>This Month</span>
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+        <div style={{ background: 'linear-gradient(135deg, #EFF6FF, #DBEAFE)', borderRadius: 16, padding: '14px 16px' }}>
+          <p style={{ fontSize: 11, color: '#3B82F6', fontWeight: 600, marginBottom: 4 }}>💸 Total Spent</p>
+          <p style={{ fontSize: 18, fontWeight: 800, color: '#1E40AF' }}>₦{insights.totalSpent.toLocaleString()}</p>
+          <p style={{ fontSize: 10, color: '#93C5FD', marginTop: 2 }}>This month</p>
+        </div>
+        <div style={{ background: 'linear-gradient(135deg, #F0FDF4, #DCFCE7)', borderRadius: 16, padding: '14px 16px' }}>
+          <p style={{ fontSize: 11, color: '#16A34A', fontWeight: 600, marginBottom: 4 }}>💰 Total Funded</p>
+          <p style={{ fontSize: 18, fontWeight: 800, color: '#15803D' }}>₦{insights.totalFunded.toLocaleString()}</p>
+          <p style={{ fontSize: 10, color: '#86EFAC', marginTop: 2 }}>This month</p>
+        </div>
+        <div style={{ background: 'linear-gradient(135deg, #FFF7ED, #FFEDD5)', borderRadius: 16, padding: '14px 16px' }}>
+          <p style={{ fontSize: 11, color: '#EA580C', fontWeight: 600, marginBottom: 4 }}>⭐ Most Used</p>
+          <p style={{ fontSize: 15, fontWeight: 800, color: '#C2410C' }}>{insights.mostUsed}</p>
+          <p style={{ fontSize: 10, color: '#FCA5A5', marginTop: 2 }}>Top service</p>
+        </div>
+        <div style={{ background: 'linear-gradient(135deg, #FDF4FF, #FAE8FF)', borderRadius: 16, padding: '14px 16px' }}>
+          <p style={{ fontSize: 11, color: '#9333EA', fontWeight: 600, marginBottom: 4 }}>🎁 Referral Earned</p>
+          <p style={{ fontSize: 18, fontWeight: 800, color: '#7E22CE' }}>₦{Number(referralEarnings).toLocaleString()}</p>
+          <p style={{ fontSize: 10, color: '#D8B4FE', marginTop: 2 }}>Lifetime</p>
+        </div>
+      </div>
+
+      {/* Activity Graph */}
+      <div>
+        <p style={{ fontSize: 12, fontWeight: 700, color: '#374151', marginBottom: 12 }}>📊 Last 7 Days Activity</p>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 80 }}>
+          {insights.last7.map((d: any, i: number) => (
+            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: '100%', borderRadius: 6, background: d.amount > 0 ? 'linear-gradient(180deg, #3B82F6, #1D4ED8)' : '#E5E7EB', height: Math.max((d.amount / maxAmount) * 60, d.amount > 0 ? 8 : 4), transition: 'height 0.5s ease' }} />
+              <span style={{ fontSize: 9, color: '#9CA3AF', fontWeight: 600 }}>{d.day}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const Dashboard = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
@@ -340,6 +454,9 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Insights Dashboard */}
+        {user?.id && <InsightsDashboard userId={user.id} referralEarnings={referralEarnings} />}
+
         {/* Invite Banner */}
         {showBanner && (
           <div className="mx-4 mb-4 rounded-2xl relative overflow-hidden">
@@ -418,26 +535,7 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Stats Row */}
-        <div className="mx-4 grid grid-cols-2 gap-3 mb-4">
-          {[
-            { label: 'Total Spent', sub: 'This Month', value: `₦${totalSpent.toLocaleString()}`, icon: <TrendingUp className="w-4 h-4" />, iconBg: 'bg-green-100 text-green-600', accent: 'border-l-green-400' },
-            { label: 'Transactions', sub: 'This Month', value: totalTxns, icon: <CreditCard className="w-4 h-4" />, iconBg: 'bg-blue-100 text-blue-600', accent: 'border-l-blue-400' },
-            { label: 'Referral Earnings', sub: 'All Time', value: `₦${Number(referralEarnings).toLocaleString()}`, icon: <Users className="w-4 h-4" />, iconBg: 'bg-purple-100 text-purple-600', accent: 'border-l-purple-400' },
-            { label: 'Loyalty Points', sub: 'Collected', value: loyaltyPoints, icon: <Star className="w-4 h-4" />, iconBg: 'bg-yellow-100 text-yellow-600', accent: 'border-l-yellow-400' },
-          ].map((stat) => (
-            <div key={stat.label} className={`bg-white rounded-2xl p-4 shadow-sm flex items-center gap-3 border-l-4 ${stat.accent}`}>
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${stat.iconBg}`}>
-                {stat.icon}
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] text-gray-400 font-medium">{stat.label}</p>
-                <p className="text-[10px] text-gray-300 mb-0.5">{stat.sub}</p>
-                <p className="text-base font-black text-gray-800 leading-tight truncate">{stat.value}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+
 
         {/* Recent Transactions */}
         <div className="mx-4 bg-white rounded-2xl p-4 shadow-sm mb-4">
