@@ -272,6 +272,122 @@ function ProfileTab({ user, profile, refreshProfile, showToast }: any) {
   );
 }
 
+
+/* ---------------- Transfer PIN Tab ---------------- */
+function TransferPINSection({ user, showToast }: any) {
+  const [hasPin, setHasPin] = useState(false);
+  const [pin, setPin] = useState('');
+  const [confirmPin, setConfirmPin] = useState('');
+  const [currentPin, setCurrentPin] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    checkPin();
+  }, [user]);
+
+  const checkPin = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('profiles')
+      .select('transfer_pin')
+      .eq('id', user.id)
+      .single();
+    setHasPin(!!data?.transfer_pin);
+  };
+
+  const handleSetPin = async () => {
+    if (pin.length !== 4 || !/^\d+$/.test(pin)) {
+      showToast('error', 'PIN must be exactly 4 digits');
+      return;
+    }
+    if (pin !== confirmPin) {
+      showToast('error', 'PINs do not match');
+      return;
+    }
+    if (hasPin && !currentPin) {
+      showToast('error', 'Enter your current PIN to change it');
+      return;
+    }
+    setSaving(true);
+    try {
+      if (hasPin) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('transfer_pin')
+          .eq('id', user.id)
+          .single();
+        if (data?.transfer_pin !== currentPin) {
+          showToast('error', 'Current PIN is incorrect');
+          setSaving(false);
+          return;
+        }
+      }
+      const { error } = await supabase
+        .from('profiles')
+        .update({ transfer_pin: pin })
+        .eq('id', user.id);
+      if (error) throw error;
+      setPin(''); setConfirmPin(''); setCurrentPin('');
+      setHasPin(true);
+      showToast('success', hasPin ? 'Transfer PIN updated!' : 'Transfer PIN set successfully!');
+    } catch (err: any) {
+      showToast('error', err.message ?? 'Failed to set PIN');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Card title="Transfer PIN" description="Set a 4-digit PIN to authorize withdrawals and transfers">
+      <div className="space-y-4 max-w-md">
+        {hasPin && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Current PIN</label>
+            <input
+              type="password"
+              maxLength={4}
+              value={currentPin}
+              onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter current PIN"
+            />
+          </div>
+        )}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">{hasPin ? 'New PIN' : 'Set PIN'}</label>
+          <input
+            type="password"
+            maxLength={4}
+            value={pin}
+            onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter 4-digit PIN"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirm PIN</label>
+          <input
+            type="password"
+            maxLength={4}
+            value={confirmPin}
+            onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Confirm 4-digit PIN"
+          />
+        </div>
+      </div>
+      <button
+        onClick={handleSetPin}
+        disabled={saving}
+        className="mt-6 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+      >
+        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
+        {hasPin ? 'Update PIN' : 'Set Transfer PIN'}
+      </button>
+    </Card>
+  );
+}
+
 /* ---------------- Security Tab ---------------- */
 function SecurityTab({ user, showToast }: any) {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -348,6 +464,7 @@ function SecurityTab({ user, showToast }: any) {
 
   return (
     <>
+      <TransferPINSection user={user} showToast={showToast} />
       <Card title="Change Password" description="Update your password to keep your account secure">
         <div className="space-y-4 max-w-md">
           <div>
