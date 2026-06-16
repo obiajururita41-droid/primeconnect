@@ -205,7 +205,7 @@ export default function VirtualCardPage() {
                 </div>
                 <div className="flex justify-between p-3 bg-gray-50 rounded-xl">
                   <span className="text-gray-500">Status</span>
-                  <span className={`font-bold ${card.is_frozen ? 'text-blue-600' : 'text-green-600'}`}>{card.is_frozen ? '❄️ Frozen' : '✅ Active'}</span>
+                  <span className={`font-bold ${card.is_frozen ? 'text-blue-600' : 'text-green-600'}`}>{card.is_frozen ? '❄️ Frozen' : 'Active'}</span>
                 </div>
                 <div className="flex justify-between p-3 bg-blue-50 rounded-xl">
                   <span className="text-blue-700 font-semibold">USD Balance</span>
