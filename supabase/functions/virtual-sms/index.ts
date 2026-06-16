@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify(result), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
     } else if (action === 'buy_number') {
-      const op = operator || 'virtual34';
+      const op = operator || 'any';
       const res = await fetch(`${BASE_URL}/user/buy/activation/${country}/${op}/${service}`, { headers: authHeaders });
       const data = await res.json();
       return new Response(JSON.stringify(data), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });

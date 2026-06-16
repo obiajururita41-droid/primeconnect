@@ -1,10 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import { MessageSquare, Copy, CheckCircle, RefreshCw, X, AlertCircle, Search, ArrowLeft, Phone, Eye, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
+import { Copy, CheckCircle, RefreshCw, X, Search, Phone } from 'lucide-react';
 
-const COUNTRY_LIST = [
+interface Country { code: string; name: string; flag: string; }
+interface Service { slug: string; name: string; logo: string; color: string; category: string; price_ngn: number; available: boolean; count: number; success_rate: number | null; is_high_risk?: boolean; }
+interface Order { id: number; phone: string; service: string; country: string; price: number; status: 'active' | 'expired'; sms?: string; created_at: string; }
+
+const COUNTRY_LIST: Country[] = [
   { code: 'usa', name: 'United States', flag: '🇺🇸' },
   { code: 'england', name: 'United Kingdom', flag: '🇬🇧' },
   { code: 'russia', name: 'Russia', flag: '🇷🇺' },
@@ -24,86 +28,168 @@ const COUNTRY_LIST = [
   { code: 'mexico', name: 'Mexico', flag: '🇲🇽' },
   { code: 'vietnam', name: 'Vietnam', flag: '🇻🇳' },
   { code: 'pakistan', name: 'Pakistan', flag: '🇵🇰' },
+  { code: 'bangladesh', name: 'Bangladesh', flag: '🇧🇩' },
+  { code: 'malaysia', name: 'Malaysia', flag: '🇲🇾' },
+  { code: 'thailand', name: 'Thailand', flag: '🇹🇭' },
+  { code: 'colombia', name: 'Colombia', flag: '🇨🇴' },
+  { code: 'argentina', name: 'Argentina', flag: '🇦🇷' },
+  { code: 'poland', name: 'Poland', flag: '🇵🇱' },
+  { code: 'cambodia', name: 'Cambodia', flag: '🇰🇭' },
+  { code: 'myanmar', name: 'Myanmar', flag: '🇲🇲' },
+  { code: 'southafrica', name: 'South Africa', flag: '🇿🇦' },
+  { code: 'egypt', name: 'Egypt', flag: '🇪🇬' },
+  { code: 'turkey', name: 'Turkey', flag: '🇹🇷' },
 ];
 
-interface Service {
-  id: string;
-  name: string;
-  slug: string;
-  category: string;
-  is_high_risk: boolean;
-  available: boolean;
-  price_usd: number | null;
-  price_ngn: number | null;
-  status: string;
-  success_rate: number;
-  warning: string | null;
-}
-
-interface Order {
-  id: number;
-  phone: string;
-  country: string;
-  service: string;
-  price: number;
-  sms?: string;
-  status?: 'active' | 'expired';
-  created_at?: string;
-}
+const CATEGORIES = ['All', 'Social Media', 'Email & Tech', 'Business', 'Shopping', 'Gaming'];
 
 function generateRef() {
-  return 'PC-SMS-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7).toUpperCase();
+  return 'SMS-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
 }
 
+const SERVICE_LOGOS: Record<string, string> = {
+  whatsapp: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg',
+  facebook: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg',
+  instagram: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg',
+  telegram: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg',
+  twitter: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg',
+  tiktok: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/tiktok.svg',
+  snapchat: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/snapchat.svg',
+  google: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/google.svg',
+  gmail: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/gmail.svg',
+  youtube: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/youtube.svg',
+  amazon: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/amazon.svg',
+  netflix: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/netflix.svg',
+  uber: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/uber.svg',
+  linkedin: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/linkedin.svg',
+  discord: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/discord.svg',
+  microsoft: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/microsoft.svg',
+  apple: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/apple.svg',
+  paypal: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/paypal.svg',
+  spotify: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/spotify.svg',
+  binance: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/binance.svg',
+  steam: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/steam.svg',
+};
+
+const SERVICE_COLORS: Record<string, string> = {
+  whatsapp: '#25D366',
+  facebook: '#1877F2',
+  instagram: '#E1306C',
+  telegram: '#2AABEE',
+  twitter: '#1DA1F2',
+  tiktok: '#010101',
+  snapchat: '#FFFC00',
+  google: '#4285F4',
+  gmail: '#EA4335',
+  youtube: '#FF0000',
+  amazon: '#FF9900',
+  netflix: '#E50914',
+  uber: '#000000',
+  linkedin: '#0A66C2',
+  discord: '#5865F2',
+  microsoft: '#00A4EF',
+  apple: '#555555',
+  paypal: '#003087',
+  spotify: '#1DB954',
+  binance: '#F3BA2F',
+  steam: '#1B2838',
+};
+
+const LogoBubble = ({ slug, name }: { slug: string; name: string }) => {
+  const logoUrl = SERVICE_LOGOS[slug] || SERVICE_LOGOS[slug?.split('_')[0]];
+  const color = SERVICE_COLORS[slug] || SERVICE_COLORS[slug?.split('_')[0]] || '#6366F1';
+  const isLight = ['#FFFC00','#F3BA2F','#FF9900'].includes(color);
+  if (logoUrl) {
+    return (
+      <div style={{ width: 40, height: 40, borderRadius: 12, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 2px 8px ${color}55`, padding: 8 }}>
+        <img src={logoUrl} alt={name} style={{ width: 24, height: 24, filter: isLight ? 'invert(0)' : 'invert(1)', objectFit: 'contain' }} />
+      </div>
+    );
+  }
+  return (
+    <div style={{ width: 40, height: 40, borderRadius: 12, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: isLight ? '#111' : '#fff', flexShrink: 0, boxShadow: `0 2px 8px ${color}55` }}>
+      {name?.slice(0, 2).toUpperCase()}
+    </div>
+  );
+};
+
+const SkeletonCard = () => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: '#fff', borderRadius: 14, border: '1.5px solid #E5E7EB', marginBottom: 8 }}>
+    <div style={{ width: 40, height: 40, borderRadius: 12, background: '#E2E8F0' }} />
+    <div style={{ flex: 1 }}>
+      <div style={{ width: '55%', height: 13, borderRadius: 4, background: '#E2E8F0', marginBottom: 6 }} />
+      <div style={{ width: '35%', height: 11, borderRadius: 4, background: '#E2E8F0' }} />
+    </div>
+    <div style={{ width: 55, height: 22, borderRadius: 20, background: '#E2E8F0' }} />
+  </div>
+);
+
+const StatusBadge = ({ available, count }: { available: boolean; count: number }) => {
+  if (!available || count === 0) return <span style={{ background: '#FEE2E2', color: '#DC2626', fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 20 }}>Sold Out</span>;
+  if (count < 10) return <span style={{ background: '#FEF9C3', color: '#CA8A04', fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 20 }}>Limited</span>;
+  return <span style={{ background: '#DCFCE7', color: '#16A34A', fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 20 }}>Available</span>;
+};
 export default function VirtualSMSPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<'buy' | 'my'>('buy');
-  const [selectedCountry, setSelectedCountry] = useState(COUNTRY_LIST[15]);
-  const [showCountryPicker, setShowCountryPicker] = useState(false);
-  const [countrySearch, setCountrySearch] = useState('');
+  const autoCheckRef = useRef<any>(null);
+
+  const [selectedCountry, setSelectedCountry] = useState<Country>(COUNTRY_LIST[0]);
   const [services, setServices] = useState<Service[]>([]);
   const [grouped, setGrouped] = useState<Record<string, Service[]>>({});
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [order, setOrder] = useState<Order | null>(null);
   const [myNumbers, setMyNumbers] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(false);
   const [loadingServices, setLoadingServices] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [checkingOrder, setCheckingOrder] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [searchService, setSearchService] = useState('');
-  const autoCheckRef = useRef<any>(null);
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [countryOpen, setCountryOpen] = useState(false);
+  const [collapsedCats, setCollapsedCats] = useState<Set<string>>(new Set());
+  const [copied, setCopied] = useState(false);
 
   const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
   const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
   async function callFunction(name: string, body: Record<string, any>) {
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/${name}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
-      body: JSON.stringify(body),
-    });
-    return res.json();
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/${name}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
+        body: JSON.stringify(body),
+      });
+      const text = await res.text();
+      if (!text || text.trim() === '') return { error: 'Empty response from server' };
+      if (text.includes('no free phones') || text.includes('no free activation')) return { error: 'no_numbers' };
+      if (text.startsWith('bad_') || text === 'banned') return { error: 'provider_error' };
+      try { return JSON.parse(text); } catch { return { error: 'Invalid response from provider' }; }
+    } catch (err: any) {
+      return { error: 'Network error. Check your connection.' };
+    }
   }
 
-  useEffect(() => {
-    fetchServices();
-  }, [selectedCountry]);
+  useEffect(() => { fetchServices(); }, [selectedCountry]);
 
   async function fetchServices() {
     setLoadingServices(true);
     setSelectedService(null);
+    setError('');
     const data = await callFunction('get-services', { country: selectedCountry.code });
     if (data?.services) {
       setServices(data.services);
       setGrouped(data.grouped || {});
+    } else {
+      setError('Could not load services. Please try again.');
     }
     setLoadingServices(false);
   }
 
   const filteredGrouped = Object.entries(grouped).reduce((acc, [cat, svcs]) => {
+    const catMatch = activeCategory === 'All' || cat === activeCategory;
+    if (!catMatch) return acc;
     const filtered = svcs.filter(s => !searchService || s.name.toLowerCase().includes(searchService.toLowerCase()));
     if (filtered.length > 0) acc[cat] = filtered;
     return acc;
@@ -111,13 +197,11 @@ export default function VirtualSMSPage() {
 
   async function handleBuyNumber() {
     if (!selectedService) return setError('Select a service first');
-    if (!selectedService.available) return setError('No numbers available for this service. Try another country.');
+    if (!selectedService.available || selectedService.count === 0) return setError('No numbers available. Try another country.');
     setError(''); setSuccess('');
-
     const { data: wallet } = await supabase.from('wallets').select('id, balance').eq('user_id', user?.id).eq('is_active', true).single();
     const price = selectedService.price_ngn || 0;
-    if (!wallet || wallet.balance < price) return setError('Insufficient balance. Need N' + price);
-
+    if (!wallet || wallet.balance < price) return setError('Insufficient balance. Need ₦' + price);
     setLoading(true);
     const reference = generateRef();
     await supabase.from('transactions').insert({
@@ -125,19 +209,19 @@ export default function VirtualSMSPage() {
       amount: price, description: 'Virtual SMS - ' + selectedService.name + ' (' + selectedCountry.name + ')',
       reference, metadata: { service: selectedService.slug, country: selectedCountry.code },
     });
-
     const data = await callFunction('virtual-sms', { action: 'buy_number', country: selectedCountry.code, service: selectedService.slug });
-
     if (data?.phone) {
       const newOrder: Order = { ...data, country: selectedCountry.name, service: selectedService.name, price, status: 'active', created_at: new Date().toISOString() };
       setOrder(newOrder);
       setMyNumbers(prev => [newOrder, ...prev]);
       await supabase.rpc('debit_wallet', { p_user_id: user?.id, p_amount: price, p_reference: reference });
       await supabase.from('transactions').update({ status: 'success' }).eq('reference', reference);
-      setSuccess('Number activated! Use it on ' + selectedService.name + ' then click Check for SMS');
+      setSuccess('Number activated! Use it on ' + selectedService.name + ' then click Check SMS');
+      autoCheckRef.current = setInterval(() => handleCheckSMS(newOrder), 8000);
     } else {
       await supabase.from('transactions').update({ status: 'failed' }).eq('reference', reference);
-      setError(data?.error || data?.message || 'No numbers available right now. Try again later or choose another country.');
+      const msg = data?.error === 'no_numbers' ? 'No numbers available right now. Try another country.' : data?.error || 'Failed to get number. Try again.';
+      setError(msg);
     }
     setLoading(false);
   }
@@ -163,6 +247,7 @@ export default function VirtualSMSPage() {
   async function handleCancel() {
     if (!order?.id) return;
     await callFunction('virtual-sms', { action: 'cancel_order', orderId: order.id });
+    clearInterval(autoCheckRef.current);
     setMyNumbers(prev => prev.map(n => n.id === order.id ? { ...n, status: 'expired' as const } : n));
     setOrder(null); setSuccess('Order cancelled.');
   }
@@ -172,192 +257,184 @@ export default function VirtualSMSPage() {
     setCopied(true); setTimeout(() => setCopied(false), 2000);
   }
 
-  const statusColor = (status: string) => {
-    if (status === 'active') return 'bg-green-100 text-green-700';
-    if (status === 'limited') return 'bg-yellow-100 text-yellow-700';
-    return 'bg-red-100 text-red-500';
-  };
-
-  const filteredCountries = COUNTRY_LIST.filter(c => c.name.toLowerCase().includes(countrySearch.toLowerCase()));
-
+  function toggleCategory(cat: string) {
+    setCollapsedCats(prev => { const next = new Set(prev); next.has(cat) ? next.delete(cat) : next.add(cat); return next; });
+  }
   return (
-    <div className="min-h-screen bg-gray-50 pb-10">
-      <div className="max-w-md mx-auto">
-        <div className="bg-white px-4 pt-6 pb-4 flex items-center gap-3 border-b border-gray-100">
-          <button onClick={() => navigate('/dashboard')} className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center">
-            <ArrowLeft className="w-4 h-4 text-gray-600" />
-          </button>
-          <div>
-            <h1 className="font-bold text-gray-900 text-lg">Virtual SMS</h1>
-            <p className="text-xs text-gray-400">International numbers for OTP verification</p>
-          </div>
+    <div style={{ fontFamily: "'Inter', -apple-system, sans-serif", background: '#F8FAFC', minHeight: '100vh', paddingBottom: 40 }}>
+
+      {/* Header */}
+      <div style={{ background: 'linear-gradient(135deg, #1E40AF 0%, #2563EB 100%)', padding: '20px 20px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#fff' }}>
+        <div>
+          <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: -0.5 }}>Virtual SMS</div>
+          <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>Receive OTPs from 200+ services worldwide</div>
         </div>
-
-        <div className="px-4 pt-4">
-          <div className="flex gap-1 bg-gray-100 rounded-2xl p-1 mb-5">
-            <button onClick={() => setTab('buy')} className={'flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ' + (tab === 'buy' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500')}>
-              <Phone className="w-4 h-4" /> Buy Number
-            </button>
-            <button onClick={() => setTab('my')} className={'flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ' + (tab === 'my' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500')}>
-              <MessageSquare className="w-4 h-4" /> My Numbers
-              {myNumbers.length > 0 && <span className="w-4 h-4 bg-blue-600 text-white text-[9px] rounded-full flex items-center justify-center">{myNumbers.length}</span>}
-            </button>
-          </div>
-
-          {tab === 'buy' && (
-            <div className="space-y-4">
-              {order && (
-                <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="text-sm font-bold text-blue-800">Number Active</p>
-                    <button onClick={handleCancel} className="text-xs text-red-500 font-semibold">Cancel</button>
-                  </div>
-                  <div className="flex items-center justify-between bg-white rounded-xl px-4 py-3 mb-3">
-                    <p className="text-lg font-black text-gray-900 tracking-wider">{order.phone}</p>
-                    <button onClick={() => copyText(order.phone)}>
-                      {copied ? <CheckCircle className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5 text-gray-400" />}
-                    </button>
-                  </div>
-                  <p className="text-xs text-blue-600 mb-3 text-center">Enter this number on {order.service} then click Check for SMS</p>
-                  {order.sms ? (
-                    <div className="bg-green-50 border border-green-100 rounded-xl p-3">
-                      <p className="text-xs text-green-600 font-bold mb-1">SMS CODE RECEIVED ✅</p>
-                      <p className="text-2xl font-black text-green-700 tracking-widest">{order.sms}</p>
-                    </div>
-                  ) : (
-                    <button onClick={() => handleCheckSMS()} disabled={checkingOrder} className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
-                      {checkingOrder ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Checking...</> : <><RefreshCw className="w-4 h-4" />Check for SMS</>}
-                    </button>
-                  )}
-                </div>
-              )}
-   <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                <p className="text-sm font-bold text-gray-800 mb-3">Select Country</p>
-                <button onClick={() => setShowCountryPicker(true)} className="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-xl border border-gray-100">
-                  <span className="text-2xl">{selectedCountry.flag}</span>
-                  <span className="text-sm font-semibold text-gray-800 flex-1 text-left">{selectedCountry.name}</span>
-                  <span className="text-gray-400 text-xs">Change ›</span>
-                </button>
-              </div>
-
-              <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                <p className="text-sm font-bold text-gray-800 mb-3">Select Service</p>
-                <div className="relative mb-3">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input value={searchService} onChange={e => setSearchService(e.target.value)} placeholder="Search services..." className="w-full pl-9 pr-4 py-2 bg-gray-50 rounded-xl border border-gray-100 text-sm outline-none" />
-                </div>
-                {loadingServices ? (
-                  <div className="flex justify-center py-8"><span className="w-6 h-6 border-2 border-blue-600/20 border-t-blue-600 rounded-full animate-spin" /></div>
-                ) : (
-                  Object.entries(filteredGrouped).map(([category, svcs]) => (
-                    <div key={category} className="mb-4">
-                      <p className="text-xs font-bold text-gray-400 uppercase mb-2">{category}</p>
-                      <div className="space-y-2">
-                        {svcs.map(service => (
-                          <button key={service.id} onClick={() => service.available && setSelectedService(service)}
-                            className={'w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ' + (selectedService?.id === service.id ? 'border-blue-600 bg-blue-50' : 'border-gray-100 bg-gray-50') + (!service.available ? ' opacity-50' : '')}>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <p className="text-sm font-bold text-gray-800">{service.name}</p>
-                                <span className={'text-xs px-2 py-0.5 rounded-full font-medium ' + statusColor(service.status)}>{service.status}</span>
-                                {service.is_high_risk && <AlertTriangle className="w-3 h-3 text-yellow-500" />}
-                              </div>
-                              {service.price_ngn && <p className="text-xs text-gray-500 mt-0.5">N{service.price_ngn} • {service.success_rate}% success rate</p>}
-                              {service.warning && <p className="text-xs text-yellow-600 mt-0.5">{service.warning}</p>}
-                            </div>
-                            {!service.available && <span className="text-xs text-red-400">Unavailable</span>}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {selectedService && (
-                <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <p className="text-xs text-gray-400">Estimated Price</p>
-                      <p className="text-2xl font-black text-gray-900">N{selectedService.price_ngn || '—'}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-400">Service</p>
-                      <p className="text-sm font-bold text-blue-600">{selectedService.name}</p>
-                    </div>
-                  </div>
-                  {selectedService.is_high_risk && (
-                    <div className="flex items-center gap-2 p-3 bg-yellow-50 border border-yellow-100 rounded-xl mb-3">
-                      <AlertTriangle className="w-4 h-4 text-yellow-500 shrink-0" />
-                      <p className="text-xs text-yellow-700">Low reliability service. OTP may not arrive. Consider Google or Telegram instead.</p>
-                    </div>
-                  )}
-                  {error && <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-100 rounded-xl mb-3"><AlertCircle className="w-4 h-4 text-red-500 shrink-0" /><p className="text-xs text-red-600">{error}</p></div>}
-                  {success && <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-100 rounded-xl mb-3"><CheckCircle className="w-4 h-4 text-green-500 shrink-0" /><p className="text-xs text-green-600">{success}</p></div>}
-                  <button onClick={handleBuyNumber} disabled={loading || !selectedService.available}
-                    className="w-full bg-blue-600 text-white py-3.5 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-200 disabled:bg-blue-200 disabled:text-blue-400">
-                    {loading ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Getting Number...</> : <><Phone className="w-4 h-4" />Get Number - N{selectedService.price_ngn}</>}
-                  </button>
-                  <p className="text-center text-xs text-gray-400 mt-2">Secured by 5sim</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {tab === 'my' && (
-            <div>
-              {myNumbers.length === 0 ? (
-                <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
-                  <Phone className="w-8 h-8 text-gray-200 mx-auto mb-3" />
-                  <p className="text-gray-500 font-semibold text-sm mb-1">No active numbers</p>
-                  <button onClick={() => setTab('buy')} className="bg-blue-600 text-white text-xs font-bold px-5 py-2 rounded-xl mt-2">Buy a Number</button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {myNumbers.map(num => (
-                    <div key={num.id} className="bg-white rounded-2xl p-4 border border-gray-100">
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-sm font-bold text-gray-800">{num.service}</p>
-                        <span className={'text-xs px-2 py-0.5 rounded-full ' + (num.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500')}>{num.status}</span>
-                      </div>
-                      <p className="text-lg font-black text-gray-900 mb-2">{num.phone}</p>
-                      <p className="text-xs text-gray-400 mb-3">{num.country}</p>
-                      {num.sms ? (
-                        <div className="bg-green-50 rounded-xl p-3">
-                          <p className="text-xs text-green-600 font-bold">SMS CODE</p>
-                          <p className="text-xl font-black text-green-700">{num.sms}</p>
-                        </div>
-                      ) : num.status === 'active' && (
-                        <button onClick={() => handleCheckSMS(num)} disabled={checkingOrder} className="w-full bg-blue-600 text-white py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
-                          {checkingOrder ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Checking...</> : <><RefreshCw className="w-4 h-4" />Check for SMS</>}
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        <div style={{ background: 'rgba(255,255,255,0.2)', fontSize: 11, fontWeight: 800, padding: '4px 10px', borderRadius: 20, letterSpacing: 1 }}>5SIM</div>
       </div>
-   {showCountryPicker && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end">
-          <div className="bg-white w-full rounded-t-3xl p-4 max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <p className="font-bold text-gray-900">Select Country</p>
-              <button onClick={() => setShowCountryPicker(false)}><X className="w-5 h-5 text-gray-500" /></button>
-            </div>
-            <input value={countrySearch} onChange={e => setCountrySearch(e.target.value)} placeholder="Search country..." className="w-full px-4 py-2 bg-gray-50 rounded-xl border border-gray-100 text-sm outline-none mb-3" />
-            <div className="space-y-1">
-              {filteredCountries.map(c => (
-                <button key={c.code} onClick={() => { setSelectedCountry(c); setShowCountryPicker(false); setCountrySearch(''); }}
-                  className={'w-full flex items-center gap-3 p-3 rounded-xl ' + (selectedCountry.code === c.code ? 'bg-blue-50' : 'hover:bg-gray-50')}>
-                  <span className="text-2xl">{c.flag}</span>
-                  <span className="text-sm font-medium text-gray-800">{c.name}</span>
+
+      <div style={{ margin: '16px 16px 0' }}>
+
+        {/* Error/Success */}
+        {error && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#FEF2F2', border: '1.5px solid #FECACA', borderRadius: 12, padding: '12px 14px', marginBottom: 12 }}>
+            <span style={{ fontSize: 18 }}>⚠️</span>
+            <div style={{ flex: 1, fontSize: 13, color: '#991B1B', fontWeight: 600 }}>{error}</div>
+            <button onClick={() => setError('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#991B1B', fontSize: 20 }}>×</button>
+          </div>
+        )}
+        {success && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#ECFDF5', border: '1.5px solid #6EE7B7', borderRadius: 12, padding: '12px 14px', marginBottom: 12 }}>
+            <span style={{ fontSize: 18 }}>✅</span>
+            <div style={{ flex: 1, fontSize: 13, color: '#065F46', fontWeight: 600 }}>{success}</div>
+            <button onClick={() => setSuccess('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#065F46', fontSize: 20 }}>×</button>
+          </div>
+        )}
+
+        {/* Country Selector */}
+        <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', letterSpacing: 1.2, marginBottom: 8 }}>SELECT COUNTRY</div>
+        <div style={{ position: 'relative', marginBottom: 16 }}>
+          <button style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#fff', border: '1.5px solid #E5E7EB', borderRadius: 14, cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }} onClick={() => setCountryOpen(o => !o)}>
+            <span style={{ fontSize: 24 }}>{selectedCountry.flag}</span>
+            <span style={{ fontWeight: 600, fontSize: 15 }}>{selectedCountry.name}</span>
+            <span style={{ marginLeft: 'auto', color: '#94A3B8' }}>{countryOpen ? '▲' : '▼'}</span>
+          </button>
+          {countryOpen && (
+            <div style={{ position: 'absolute', top: '110%', left: 0, right: 0, background: '#fff', border: '1.5px solid #E5E7EB', borderRadius: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', zIndex: 100, maxHeight: 260, overflowY: 'auto' }}>
+              {COUNTRY_LIST.map(c => (
+                <button key={c.code} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '11px 16px', border: 'none', cursor: 'pointer', background: c.code === selectedCountry.code ? '#EFF6FF' : 'transparent', fontWeight: c.code === selectedCountry.code ? 700 : 400, textAlign: 'left' }}
+                  onClick={() => { setSelectedCountry(c); setCountryOpen(false); }}>
+                  <span style={{ fontSize: 20 }}>{c.flag}</span>
+                  <span style={{ fontSize: 14 }}>{c.name}</span>
                 </button>
               ))}
             </div>
+          )}
+        </div>
+
+        {/* Search */}
+        <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', letterSpacing: 1.2, marginBottom: 8 }}>SELECT SERVICE</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#fff', border: '1.5px solid #E5E7EB', borderRadius: 12, padding: '10px 14px', marginBottom: 12 }}>
+          <span style={{ color: '#94A3B8' }}>🔍</span>
+          <input style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, background: 'transparent', color: '#111827' }} placeholder="Search services..." value={searchService} onChange={e => setSearchService(e.target.value)} />
+          {searchService && <button onClick={() => setSearchService('')} style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', fontSize: 18 }}>×</button>}
+        </div>
+
+        {/* Category Pills */}
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4, marginBottom: 14 }}>
+          {CATEGORIES.map(cat => (
+            <button key={cat} style={{ flexShrink: 0, padding: '6px 14px', borderRadius: 20, border: 'none', fontSize: 12, cursor: 'pointer', background: activeCategory === cat ? '#2563EB' : '#F1F5F9', color: activeCategory === cat ? '#fff' : '#64748B', fontWeight: activeCategory === cat ? 700 : 500 }}
+              onClick={() => setActiveCategory(cat)}>{cat}</button>
+          ))}
+        </div>
+
+        {/* Service List */}
+        {loadingServices ? (
+          <div>{[...Array(5)].map((_, i) => <SkeletonCard key={i} />)}</div>
+        ) : Object.keys(filteredGrouped).length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+            <div style={{ fontSize: 32, marginBottom: 8 }}>🔍</div>
+            <div style={{ fontWeight: 600, color: '#374151' }}>No services found</div>
+            <div style={{ fontSize: 13, color: '#9CA3AF', marginTop: 4 }}>Try a different search or country</div>
           </div>
+        ) : (
+          Object.entries(filteredGrouped).map(([cat, svcs]) => (
+            <div key={cat}>
+              <button style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 4px 6px', background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => toggleCategory(cat)}>
+                <span style={{ fontSize: 10, fontWeight: 800, color: '#94A3B8', letterSpacing: 1.5 }}>{cat.toUpperCase()}</span>
+                <span style={{ color: '#94A3B8', fontSize: 12 }}>{collapsedCats.has(cat) ? '▼' : '▲'}</span>
+              </button>
+              {!collapsedCats.has(cat) && svcs.map(svc => (
+                <button key={svc.slug} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, cursor: 'pointer', marginBottom: 8, boxShadow: '0 1px 4px rgba(0,0,0,0.05)', border: selectedService?.slug === svc.slug ? '2px solid #2563EB' : '1.5px solid #E5E7EB', background: selectedService?.slug === svc.slug ? '#EFF6FF' : '#fff' }}
+                  onClick={() => { setSelectedService(svc); setError(''); setSuccess(''); }}>
+                  <LogoBubble slug={svc.slug} name={svc.name} />
+                  <div style={{ flex: 1, textAlign: 'left' }}>
+                    <div style={{ fontWeight: 600, fontSize: 14, color: '#111827' }}>{svc.name}</div>
+                    <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>
+                      {svc.count > 0 ? `${svc.count.toLocaleString()} available` : 'Check another country'}
+                      {svc.success_rate != null && ` · ${svc.success_rate}% success`}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                    <StatusBadge available={svc.available} count={svc.count} />
+                    {svc.price_ngn > 0 && <span style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>₦{svc.price_ngn}</span>}
+                  </div>
+                </button>
+              ))}
+            </div>
+          ))
+        )}
+      </div>
+      {/* Purchase Card */}
+      {selectedService && !order && (
+        <div style={{ margin: '16px 16px 0', background: '#fff', borderRadius: 20, padding: 20, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1.5px solid #E5E7EB' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+            <LogoBubble slug={selectedService.slug} name={selectedService.name} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 700, fontSize: 16, color: '#111827' }}>{selectedService.name}</div>
+              <div style={{ fontSize: 13, color: '#6B7280', marginTop: 1 }}>{selectedCountry.flag} {selectedCountry.name}</div>
+            </div>
+            {selectedService.is_high_risk && <span style={{ background: '#FEF3C7', color: '#92400E', fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 20 }}>High Demand</span>}
+          </div>
+
+          <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+            <div style={{ flex: 1, background: '#F8FAFC', borderRadius: 12, padding: '10px 0', textAlign: 'center', border: '1px solid #E5E7EB' }}>
+              <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>₦{selectedService.price_ngn}</div>
+              <div style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, marginTop: 2 }}>PRICE</div>
+            </div>
+            <div style={{ flex: 1, background: '#F8FAFC', borderRadius: 12, padding: '10px 0', textAlign: 'center', border: '1px solid #E5E7EB' }}>
+              <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>{selectedService.count.toLocaleString()}</div>
+              <div style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, marginTop: 2 }}>AVAILABLE</div>
+            </div>
+            <div style={{ flex: 1, background: '#F8FAFC', borderRadius: 12, padding: '10px 0', textAlign: 'center', border: '1px solid #E5E7EB' }}>
+              <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>{selectedService.success_rate != null ? `${selectedService.success_rate}%` : '—'}</div>
+              <div style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, marginTop: 2 }}>SUCCESS</div>
+            </div>
+          </div>
+
+          <button
+            style={{ width: '100%', padding: '15px', background: selectedService.available && selectedService.count > 0 ? 'linear-gradient(135deg, #1E40AF, #2563EB)' : '#E5E7EB', color: selectedService.available && selectedService.count > 0 ? '#fff' : '#9CA3AF', border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: selectedService.available && selectedService.count > 0 ? 'pointer' : 'not-allowed', boxShadow: selectedService.available && selectedService.count > 0 ? '0 4px 16px rgba(37,99,235,0.4)' : 'none' }}
+            disabled={!selectedService.available || selectedService.count === 0 || loading}
+            onClick={handleBuyNumber}>
+            {loading ? '⏳ Getting Number...' : !selectedService.available || selectedService.count === 0 ? '📵 No Numbers Available' : `📱 Get Number — ₦${selectedService.price_ngn}`}
+          </button>
+          <div style={{ textAlign: 'center', fontSize: 11, color: '#9CA3AF', marginTop: 10 }}>🔒 Secured by 5SIM</div>
+        </div>
+      )}
+
+      {/* Active Order Card */}
+      {order && (
+        <div style={{ margin: '16px 16px 0', background: '#fff', borderRadius: 20, padding: 20, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1.5px solid #E5E7EB' }}>
+          <div style={{ fontSize: 11, fontWeight: 800, color: '#2563EB', letterSpacing: 1.5, marginBottom: 8 }}>ACTIVE NUMBER</div>
+          <div style={{ background: order.sms ? '#ECFDF5' : '#EFF6FF', border: `1.5px solid ${order.sms ? '#6EE7B7' : '#BFDBFE'}`, borderRadius: 14, padding: '16px', marginBottom: 14, textAlign: 'center' }}>
+            <div style={{ fontSize: 24, fontWeight: 800, color: order.sms ? '#065F46' : '#1E40AF', letterSpacing: 2, marginBottom: 6 }}>{order.phone}</div>
+            <button onClick={() => copyText(order.phone)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2563EB', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto' }}>
+              {copied ? '✅ Copied!' : '📋 Copy Number'}
+            </button>
+          </div>
+
+          {order.sms ? (
+            <div style={{ background: '#ECFDF5', border: '1.5px solid #6EE7B7', borderRadius: 14, padding: '14px 16px', marginBottom: 14, textAlign: 'center' }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: '#059669', letterSpacing: 1.5, marginBottom: 6 }}>SMS RECEIVED ✓</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#065F46', letterSpacing: 6 }}>{order.sms}</div>
+              <button onClick={() => copyText(order.sms!)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#059669', fontSize: 13, fontWeight: 600, marginTop: 6 }}>
+                {copied ? '✅ Copied!' : '📋 Copy Code'}
+              </button>
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', color: '#6B7280', fontSize: 13, marginBottom: 14 }}>⏳ Waiting for SMS... Use the number on {order.service} now</div>
+          )}
+
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button onClick={() => handleCheckSMS()} disabled={checkingOrder}
+              style={{ flex: 1, padding: '13px', background: 'linear-gradient(135deg, #1E40AF, #2563EB)', color: '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer', opacity: checkingOrder ? 0.7 : 1 }}>
+              {checkingOrder ? '⏳ Checking...' : '🔄 Check SMS'}
+            </button>
+            <button onClick={handleCancel}
+              style={{ padding: '13px 16px', background: '#FEF2F2', color: '#DC2626', border: '1.5px solid #FECACA', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+              ✕ Cancel
+            </button>
+          </div>
+          <div style={{ textAlign: 'center', fontSize: 11, color: '#9CA3AF', marginTop: 10 }}>🔒 Secured by 5SIM</div>
         </div>
       )}
     </div>

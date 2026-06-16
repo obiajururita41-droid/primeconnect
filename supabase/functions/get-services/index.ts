@@ -38,8 +38,20 @@ Deno.serve(async (req) => {
         category: service.service_categories ? service.service_categories.name : "Other",
         is_high_risk: service.is_high_risk,
         available,
+        count: product ? product.Qty : 0,
         price_usd: price,
-        price_ngn: price ? Math.ceil(price * 1600 * 1.3) : null,
+        price_ngn: price ? (() => {
+        const high = ['usa','england','canada','australia'];
+        const mid_high = ['france','germany','poland','turkey','ukraine'];
+        const mid = ['russia','india','brazil','indonesia','vietnam','malaysia','thailand','pakistan','bangladesh','colombia','argentina','mexico','philippines','china','cambodia','myanmar'];
+        const low = ['nigeria','ghana','kenya','southafrica','egypt'];
+        const markup = high.includes(country) ? 2.2
+          : mid_high.includes(country) ? 2.1
+          : mid.includes(country) ? 2.0
+          : low.includes(country) ? 1.9
+          : 1.95;
+        return Math.ceil(price * 1600 * markup);
+      })() : null,
         status,
         success_rate: service.is_high_risk ? 20 : 40,
         warning: service.is_high_risk ? "Low reliability - OTP may not arrive" : null,
