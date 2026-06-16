@@ -95,44 +95,48 @@ export default function VirtualCardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-      <div className="bg-gradient-to-br from-purple-700 to-indigo-800 px-4 pt-12 pb-20">
+      <div className="bg-gradient-to-br from-blue-600 to-blue-700 px-4 pt-12 pb-20">
         <div className="max-w-md mx-auto flex items-center gap-3 mb-6">
           <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
             <CreditCard className="w-5 h-5 text-white" />
           </div>
           <div>
-            <p className="text-purple-100 text-sm">Virtual Card</p>
+            <p className="text-blue-100 text-sm">Virtual Card</p>
             <p className="text-white font-bold text-lg">USD Virtual Card</p>
           </div>
         </div>
 
         {card ? (
           <div className="max-w-md mx-auto">
-            <div className={`rounded-2xl p-5 ${card.is_frozen ? 'bg-gray-600' : 'bg-gradient-to-br from-purple-500 to-indigo-600'} text-white relative overflow-hidden`}>
+            <div className={`rounded-3xl p-6 relative overflow-hidden shadow-2xl text-white ${card.is_frozen ? 'bg-gradient-to-br from-slate-600 via-slate-700 to-slate-900' : 'bg-gradient-to-br from-blue-500 via-blue-600 to-blue-800'}`} style={{ minHeight: '200px' }}>
+            <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/10 pointer-events-none" />
+            <div className="absolute -bottom-10 -left-6 w-52 h-52 rounded-full bg-white/5 pointer-events-none" />
+            <div className="absolute top-10 right-16 w-20 h-20 rounded-full bg-white/5 pointer-events-none" />
               {card.is_frozen && (
-                <div className="absolute inset-0 bg-gray-800/60 flex items-center justify-center z-10 rounded-2xl">
-                  <div className="text-center">
-                    <Snowflake className="w-10 h-10 text-blue-300 mx-auto mb-2" />
-                    <p className="text-white font-bold">Card Frozen</p>
-                  </div>
+                <div className="absolute inset-0 z-20 rounded-3xl backdrop-blur-sm bg-slate-900/50 flex flex-col items-center justify-center">
+                  <Snowflake className="w-10 h-10 text-blue-300 mb-2" />
+                  <p className="text-white font-bold tracking-widest text-sm uppercase">Card Frozen</p>
                 </div>
               )}
-              <div className="flex justify-between items-start mb-6">
-                <p className="text-xs font-bold text-white/70 uppercase tracking-wider">PrimeConnect</p>
-                <p className="text-xs font-bold bg-white/20 px-2 py-1 rounded-lg">VISA</p>
+              <div className="relative z-10 flex justify-between items-center mb-5">
+                <p className="text-xs font-extrabold tracking-[0.2em] text-white/80 uppercase">PrimeConnect</p>
+                <p className="text-xs font-bold bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-lg tracking-wider">VISA</p>
               </div>
-              <p className="text-lg font-mono font-bold mb-4 tracking-widest">
-                {showDetails ? card.card_number : card.card_number.replace(/\d{4} \d{4} \d{4}/, '**** **** ****')}
+              <div className="relative z-10 mb-4">
+                <div className="w-10 h-7 rounded-md bg-yellow-400/90" style={{ backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.15) 3px,rgba(0,0,0,0.15) 4px),repeating-linear-gradient(90deg,transparent,transparent 3px,rgba(0,0,0,0.15) 3px,rgba(0,0,0,0.15) 4px)" }} />
+              </div>
+              <p className="relative z-10 text-base font-mono font-bold tracking-[0.22em] mb-5 text-white">
+                {showDetails ? card.card_number : '**** **** **** ' + card.card_number.slice(-4)}
               </p>
-              <div className="flex justify-between items-end">
+              <div className="relative z-10 flex justify-between items-end">
                 <div>
-                  <p className="text-xs text-white/60">Balance</p>
-                  <p className="text-xl font-black">${Number(card.balance).toFixed(2)}</p>
+                  <p className="text-[10px] text-white/50 uppercase tracking-widest mb-0.5">Balance</p>
+                  <p className="text-2xl font-black text-white">${Number(card.balance).toFixed(2)}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-white/60">Expires</p>
-                  <p className="font-mono text-sm">{showDetails ? card.expiry : '**/**'}</p>
-                  {showDetails && <p className="font-mono text-xs text-white/60">CVV: {card.cvv}</p>}
+                  <p className="text-[10px] text-white/50 uppercase tracking-widest mb-0.5">Expires</p>
+                  <p className="font-mono text-sm text-white">{showDetails ? card.expiry : '**/**'}</p>
+                  {showDetails && <p className="font-mono text-xs text-white/60 mt-0.5">CVV: {card.cvv}</p>}
                 </div>
               </div>
             </div>
@@ -153,7 +157,7 @@ export default function VirtualCardPage() {
               <CreditCard className="w-10 h-10 text-white/60" />
             </div>
             <p className="text-white font-bold mb-1">No Virtual Card Yet</p>
-            <p className="text-purple-100 text-sm">Creation fee: ₦500 (one-time)</p>
+            <p className="text-blue-100 text-sm">Creation fee: ₦500 (one-time)</p>
           </div>
         )}
       </div>
@@ -170,7 +174,7 @@ export default function VirtualCardPage() {
             </ul>
             {error && <div className="flex gap-2 p-3 bg-red-50 rounded-xl mb-4"><AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" /><p className="text-sm text-red-600">{error}</p></div>}
             <button onClick={createCard} disabled={creating}
-              className="w-full py-4 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-300 text-white font-bold rounded-xl flex items-center justify-center gap-2">
+              className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold rounded-xl flex items-center justify-center gap-2">
               {creating ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><Plus className="w-5 h-5" />Create Card (₦500)</>}
             </button>
           </div>
@@ -179,7 +183,7 @@ export default function VirtualCardPage() {
             <div className="flex gap-2 mb-4">
               {(['card','fund'] as const).map(t => (
                 <button key={t} onClick={() => { setTab(t); setError(''); setSuccess(''); }}
-                  className={`flex-1 py-2.5 rounded-xl text-sm font-bold capitalize ${tab === t ? 'bg-purple-600 text-white' : 'bg-gray-50 text-gray-500'}`}>
+                  className={`flex-1 py-2.5 rounded-xl text-sm font-bold capitalize ${tab === t ? 'bg-blue-600 text-white' : 'bg-gray-50 text-gray-500'}`}>
                   {t === 'card' ? '💳 Card Info' : '💰 Fund Card'}
                 </button>
               ))}
@@ -203,9 +207,9 @@ export default function VirtualCardPage() {
                   <span className="text-gray-500">Status</span>
                   <span className={`font-bold ${card.is_frozen ? 'text-blue-600' : 'text-green-600'}`}>{card.is_frozen ? '❄️ Frozen' : '✅ Active'}</span>
                 </div>
-                <div className="flex justify-between p-3 bg-purple-50 rounded-xl">
-                  <span className="text-purple-700 font-semibold">USD Balance</span>
-                  <span className="font-black text-purple-700">${Number(card.balance).toFixed(2)}</span>
+                <div className="flex justify-between p-3 bg-blue-50 rounded-xl">
+                  <span className="text-blue-700 font-semibold">USD Balance</span>
+                  <span className="font-black text-blue-700">${Number(card.balance).toFixed(2)}</span>
                 </div>
               </div>
             )}
@@ -220,12 +224,12 @@ export default function VirtualCardPage() {
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Amount in USD ($)</label>
                 <input type="number" value={fundAmount} onChange={e => setFundAmount(e.target.value)}
                   placeholder="Enter USD amount"
-                  className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl text-xl font-bold focus:outline-none focus:border-purple-500 mb-2" />
+                  className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl text-xl font-bold focus:outline-none focus:border-blue-500 mb-2" />
                 {fundAmount && <p className="text-xs text-gray-500 mb-4">≈ ₦{(Number(fundAmount)*1600).toLocaleString()} will be deducted</p>}
                 <div className="grid grid-cols-3 gap-2 mb-4">
                   {[5,10,20,50,100,200].map(q => (
                     <button key={q} onClick={() => setFundAmount(String(q))}
-                      className={`py-2 rounded-xl text-xs font-bold border-2 ${fundAmount === String(q) ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-gray-600 border-gray-100'}`}>
+                      className={`py-2 rounded-xl text-xs font-bold border-2 ${fundAmount === String(q) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-100'}`}>
                       ${q}
                     </button>
                   ))}
@@ -233,7 +237,7 @@ export default function VirtualCardPage() {
                 {error && <div className="flex gap-2 p-3 bg-red-50 rounded-xl mb-3"><AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" /><p className="text-sm text-red-600">{error}</p></div>}
                 {success && <div className="flex gap-2 p-3 bg-green-50 rounded-xl mb-3"><CheckCircle2 className="w-4 h-4 text-green-500 shrink-0 mt-0.5" /><p className="text-sm text-green-600">{success}</p></div>}
                 <button onClick={fundCard} disabled={loading}
-                  className="w-full py-4 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-300 text-white font-bold rounded-xl flex items-center justify-center gap-2">
+                  className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold rounded-xl flex items-center justify-center gap-2">
                   {loading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Fund Card</>}
                 </button>
               </div>
