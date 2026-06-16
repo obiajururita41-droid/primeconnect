@@ -22,6 +22,8 @@ export default function WithdrawalPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [pin, setPin] = useState('');
+  const [bankSearch, setBankSearch] = useState('');
+  const [showBankDropdown, setShowBankDropdown] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
 
   useEffect(() => { fetchWallet(); fetchBanks(); fetchSavedBanks(); }, []);
@@ -112,12 +114,40 @@ export default function WithdrawalPage() {
       )}
 
       <div className="space-y-4">
-        <div>
+        <div style={{ position: 'relative' }}>
           <label className="block text-sm font-medium mb-1">Bank</label>
-          <select value={bankCode} onChange={(e) => { setBankCode(e.target.value); setAccountName(''); }} className="w-full border rounded-lg px-3 py-2">
-            <option value="">Select bank</option>
-            {banks.map((b) => <option key={b.code} value={b.code}>{b.name}</option>)}
-          </select>
+          <button
+            onClick={() => setShowBankDropdown(!showBankDropdown)}
+            style={{ width: '100%', border: '1px solid #E5E7EB', borderRadius: 8, padding: '10px 12px', background: '#fff', textAlign: 'left', fontSize: 14, color: bankCode ? '#111827' : '#9CA3AF', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+          >
+            <span>{banks.find(b => b.code === bankCode)?.name || 'Select bank'}</span>
+            <span style={{ color: '#9CA3AF' }}>▼</span>
+          </button>
+          {showBankDropdown && (
+            <div style={{ position: 'absolute', top: '110%', left: 0, right: 0, background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', zIndex: 100, maxHeight: 300, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ padding: '10px 12px', borderBottom: '1px solid #F3F4F6' }}>
+                <input
+                  autoFocus
+                  type="text"
+                  placeholder="Search bank..."
+                  value={bankSearch}
+                  onChange={e => setBankSearch(e.target.value)}
+                  style={{ width: '100%', border: '1px solid #E5E7EB', borderRadius: 8, padding: '8px 12px', fontSize: 14, outline: 'none' }}
+                />
+              </div>
+              <div style={{ overflowY: 'auto', maxHeight: 230 }}>
+                {banks.filter(b => b.name.toLowerCase().includes(bankSearch.toLowerCase())).map(b => (
+                  <button
+                    key={b.code}
+                    onClick={() => { setBankCode(b.code); setAccountName(''); setShowBankDropdown(false); setBankSearch(''); }}
+                    style={{ width: '100%', padding: '11px 16px', border: 'none', background: b.code === bankCode ? '#EFF6FF' : 'transparent', textAlign: 'left', fontSize: 14, color: '#111827', cursor: 'pointer', fontWeight: b.code === bankCode ? 700 : 400 }}
+                  >
+                    {b.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Account Number</label>

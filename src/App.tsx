@@ -16,10 +16,13 @@ import AdminDashboard from './pages/AdminDashboard';
 import VirtualSMSPage from './pages/services/VirtualSMSPage';
 import AirtimePage from './pages/services/AirtimePage';
 import DataPage from './pages/services/DataPage';
-import GiftCardPage from './pages/services/GiftCardPage';
 import BulkSMSPage from './pages/services/BulkSMSPage';
 import AirtimeToCashPage from './pages/services/AirtimeToCashPage';
 import BettingPage from './pages/services/BettingPage';
+import SavingsPage from './pages/services/SavingsPage';
+import TVSubscriptionPage from './pages/services/TVSubscriptionPage';
+import ElectricityPage from './pages/services/ElectricityPage';
+import VirtualCardPage from './pages/services/VirtualCardPage';
 import AIHub from './pages/AIHub';
 import TransactionHistory from './pages/TransactionHistory';
 import ReferralPage from './pages/ReferralPage';
@@ -47,15 +50,14 @@ function App() {
           <Route path="/services/virtual-sms" element={<ProtectedRoute><VirtualSMSPage /></ProtectedRoute>} />
           <Route path="/services/airtime" element={<ProtectedRoute><AirtimePage /></ProtectedRoute>} />
           <Route path="/services/data" element={<ProtectedRoute><DataPage /></ProtectedRoute>} />
-          <Route path="/services/gift-card" element={<ProtectedRoute><GiftCardPage /></ProtectedRoute>} />
           <Route path="/services/bulk-sms" element={<ProtectedRoute><BulkSMSPage /></ProtectedRoute>} />
           <Route path="/services/airtime-to-cash" element={<ProtectedRoute><AirtimeToCashPage /></ProtectedRoute>} />
           <Route path="/services/betting" element={<ProtectedRoute><BettingPage /></ProtectedRoute>} />
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } />
+          <Route path="/services/savings" element={<ProtectedRoute><SavingsPage /></ProtectedRoute>} />
+          <Route path="/services/tv-subscription" element={<ProtectedRoute><TVSubscriptionPage /></ProtectedRoute>} />
+          <Route path="/services/electricity" element={<ProtectedRoute><ElectricityPage /></ProtectedRoute>} />
+          <Route path="/services/virtual-card" element={<ProtectedRoute><VirtualCardPage /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/ai-hub" element={<ProtectedRoute><AIHub /></ProtectedRoute>} />
           <Route path="/transactions" element={<ProtectedRoute><TransactionHistory /></ProtectedRoute>} />
           <Route path="/referral" element={<ProtectedRoute><ReferralPage /></ProtectedRoute>} />
@@ -64,11 +66,7 @@ function App() {
           <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
           <Route path="/scan" element={<ProtectedRoute><ScanPayPage /></ProtectedRoute>} />
           <Route path="/payment/verify" element={<ProtectedRoute><PaymentVerifyPage /></ProtectedRoute>} />
-          <Route path="/admin" element={
-            <ProtectedRoute>
-              <AdminDashboard />
-            </ProtectedRoute>
-          } />
+          <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
         </Routes>
         <SiteFooter />
       </BrowserRouter>

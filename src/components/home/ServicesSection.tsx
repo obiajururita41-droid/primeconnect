@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom';
-import { Smartphone, Wifi, Receipt, Gift, MessageSquare, Wallet, ArrowRight } from 'lucide-react';
+import { Smartphone, Wifi, PiggyBank, MessageSquare, Tv, Zap, CreditCard, ArrowRight } from 'lucide-react';
 
 const services = [
   { icon: Smartphone, title: 'Airtime Purchase', desc: 'Buy airtime for all networks instantly at the best rates.', color: 'bg-blue-50 text-blue-600', route: '/services' },
   { icon: Wifi, title: 'Data Subscription', desc: 'Subscribe to affordable data plans for all networks.', color: 'bg-green-50 text-green-600', route: '/services' },
-  { icon: Wallet, title: 'Wallet Funding', desc: 'Fund your wallet easily via bank transfer or card.', color: 'bg-purple-50 text-purple-600', route: '/services' },
-  { icon: MessageSquare, title: 'Virtual SMS', desc: 'Send bulk SMS messages to any number nationwide.', color: 'bg-orange-50 text-orange-600', route: '/services' },
-  { icon: Gift, title: 'Gift Card Trading', desc: 'Trade your gift cards at the best rates instantly.', color: 'bg-pink-50 text-pink-600', route: '/services' },
-  { icon: Receipt, title: 'Bill Payments', desc: 'Pay electricity, TV subscriptions and more with ease.', color: 'bg-teal-50 text-teal-600', route: '/services' },
+  { icon: PiggyBank, title: 'Savings + Interest', desc: 'Save money and earn interest automatically every month.', color: 'bg-emerald-50 text-emerald-600', route: '/services/savings' },
+  { icon: MessageSquare, title: 'Virtual SMS', desc: 'Get virtual numbers and receive SMS from any platform.', color: 'bg-orange-50 text-orange-600', route: '/services/virtual-sms' },
+  { icon: Tv, title: 'TV Subscription', desc: 'Pay DSTV, GOtv & StarTimes subscriptions instantly.', color: 'bg-indigo-50 text-indigo-600', route: '/services/tv-subscription' },
+  { icon: Zap, title: 'Electricity Token', desc: 'Buy prepaid electricity tokens for any meter nationwide.', color: 'bg-yellow-50 text-yellow-600', route: '/services/electricity' },
+  { icon: CreditCard, title: 'Virtual USD Card', desc: 'Create a USD card to shop globally — Amazon, Netflix & more.', color: 'bg-purple-50 text-purple-600', route: '/services/virtual-card' },
 ];
 
 const ServicesSection = () => {
