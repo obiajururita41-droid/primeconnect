@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { saveState, loadState, clearState } from '../../lib/sessionState';
 import { MessageSquare, AlertCircle, CheckCircle2, Plus, X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
@@ -11,10 +12,13 @@ const SMS_PRICE_PER_PAGE = 5; // ₦5 per SMS page (160 chars)
 
 export default function BulkSMSPage() {
   const { user } = useAuth();
-  const [numbers, setNumbers]   = useState<string[]>(['']);
-  const [message, setMessage]   = useState('');
-  const [senderId, setSenderId] = useState('PrimeConnect');
-  const [loading, setLoading]   = useState(false);
+  const [numbers, setNumbers] = useState<string[]>(() => loadState<string[]>('sms_numbers') || ['']);
+  const [message, setMessage] = useState<string>(() => loadState<string>('sms_message') || '');
+  const [senderId, setSenderId] = useState<string>(() => loadState<string>('sms_senderid') || 'PrimeConnect');
+  const [loading, setLoading] = useState(false);
+  useEffect(() => { saveState('sms_numbers', numbers); }, [numbers]);
+  useEffect(() => { saveState('sms_message', message); }, [message]);
+  useEffect(() => { saveState('sms_senderid', senderId); }, [senderId]);
   const [error, setError]       = useState('');
   const [success, setSuccess]   = useState('');
 

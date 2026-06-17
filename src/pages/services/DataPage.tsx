@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { saveState, loadState } from '../../lib/sessionState';
 import { Wifi, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
@@ -22,8 +23,8 @@ function generateRef() {
 
 export default function DataPage() {
   const { user } = useAuth();
-  const [network, setNetwork]       = useState('');
-  const [phone, setPhone]           = useState('');
+  const [network, setNetwork] = useState(() => loadState<string>('data_network') || '');
+  const [phone, setPhone] = useState(() => loadState<string>('data_phone') || '');
   const [plans, setPlans]           = useState<DataPlan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<DataPlan | null>(null);
   const [loadingPlans, setLoadingPlans] = useState(false);

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { saveState, loadState, clearState } from '../../lib/sessionState';
 import { AlertCircle, CheckCircle2, Zap } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
@@ -21,10 +22,13 @@ function generateRef() {
 
 export default function BettingPage() {
   const { user } = useAuth();
-  const [platform, setPlatform] = useState('');
-  const [userId, setUserId]     = useState('');
-  const [amount, setAmount]     = useState('');
-  const [loading, setLoading]   = useState(false);
+  const [platform, setPlatform] = useState<string>(() => loadState<string>('bet_platform') || '');
+  const [userId, setUserId] = useState<string>(() => loadState<string>('bet_userid') || '');
+  const [amount, setAmount] = useState<string>(() => loadState<string>('bet_amount') || '');
+  const [loading, setLoading] = useState(false);
+  useEffect(() => { saveState('bet_platform', platform); }, [platform]);
+  useEffect(() => { saveState('bet_userid', userId); }, [userId]);
+  useEffect(() => { saveState('bet_amount', amount); }, [amount]);
   const [error, setError]       = useState('');
   const [success, setSuccess]   = useState('');
 

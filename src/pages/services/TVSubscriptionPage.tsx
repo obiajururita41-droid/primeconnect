@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { saveState, loadState, clearState } from '../../lib/sessionState';
 import { Tv, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
@@ -27,10 +28,13 @@ function generateRef() {
 
 export default function TVSubscriptionPage() {
   const { user } = useAuth();
-  const [provider, setProvider] = useState(PROVIDERS[0]);
-  const [plan, setPlan] = useState<{name:string;amount:number}|null>(null);
-  const [smartCard, setSmartCard] = useState('');
+  const [provider, setProvider] = useState(() => { const s = loadState<string>('tv_provider'); return PROVIDERS.find(p => p.id === s) || PROVIDERS[0]; });
+  const [plan, setPlan] = useState<{name:string;amount:number}|null>(() => loadState<{name:string;amount:number}>('tv_plan'));
+  const [smartCard, setSmartCard] = useState<string>(() => loadState<string>('tv_smartcard') || '');
   const [loading, setLoading] = useState(false);
+  useEffect(() => { saveState('tv_provider', provider.id); }, [provider]);
+  useEffect(() => { saveState('tv_plan', plan); }, [plan]);
+  useEffect(() => { saveState('tv_smartcard', smartCard); }, [smartCard]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
@@ -60,6 +64,7 @@ export default function TVSubscriptionPage() {
 
     await supabase.from('transactions').update({ status: 'success' }).eq('reference', ref);
     setSuccess(true);
+    clearState('tv_provider'); clearState('tv_plan'); clearState('tv_smartcard');
     setLoading(false);
   }
 

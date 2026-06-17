@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { Copy, CheckCircle, RefreshCw, X, Search, Phone } from 'lucide-react';
+import { saveState, loadState, clearState } from '../../lib/sessionState';
 
 interface Country { code: string; name: string; flag: string; }
 interface Service { slug: string; name: string; logo: string; color: string; category: string; price_ngn: number; available: boolean; count: number; success_rate: number | null; is_high_risk?: boolean; }
@@ -133,12 +134,13 @@ export default function VirtualSMSPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const autoCheckRef = useRef<any>(null);
+  useEffect(() => { if (order) saveState('sms_order', order); else clearState('sms_order'); }, [order]);
 
   const [selectedCountry, setSelectedCountry] = useState<Country>(COUNTRY_LIST[0]);
   const [services, setServices] = useState<Service[]>([]);
   const [grouped, setGrouped] = useState<Record<string, Service[]>>({});
   const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [order, setOrder] = useState<Order | null>(null);
+  const [order, setOrder] = useState<Order | null>(() => loadState<Order>('sms_order'));
   const [myNumbers, setMyNumbers] = useState<Order[]>([]);
   const [loadingServices, setLoadingServices] = useState(false);
   const [loading, setLoading] = useState(false);

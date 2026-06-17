@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { CreditCard, Plus, Eye, EyeOff, Snowflake, AlertCircle, CheckCircle2, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
+import { saveState, loadState, clearState } from '../../lib/sessionState';
 
 function generateCard() {
   const num = Array.from({length:4}, () => Math.floor(1000+Math.random()*9000)).join(' ');
@@ -9,6 +10,7 @@ function generateCard() {
   const cvv = String(Math.floor(100+Math.random()*900));
   return { number: num, expiry: exp, cvv };
 }
+
 function generateRef() {
   return `PC-CARD-${Date.now()}-${Math.random().toString(36).slice(2,7).toUpperCase()}`;
 }
@@ -18,14 +20,20 @@ export default function VirtualCardPage() {
   const [card, setCard] = useState<any>(null);
   const [walletBalance, setWalletBalance] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
-  const [fundAmount, setFundAmount] = useState('');
+  const [fundAmount, setFundAmount] = useState<string>(() => loadState<string>('vc_fundAmount') || '');
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [tab, setTab] = useState<'card'|'fund'>('card');
+  const [tab, setTab] = useState<'card'|'fund'>(() => loadState<'card'|'fund'>('vc_tab') || 'card');
 
   useEffect(() => { fetchData(); }, [user]);
+
+  // Persist tab
+  useEffect(() => { saveState('vc_tab', tab); }, [tab]);
+
+  // Persist fundAmount
+  useEffect(() => { saveState('vc_fundAmount', fundAmount); }, [fundAmount]);
 
   async function fetchData() {
     if (!user) return;
@@ -62,6 +70,8 @@ export default function VirtualCardPage() {
     setCard(newCard);
     setWalletBalance(Number(w.balance) - creationFee);
     setCreating(false);
+    clearState('vc_fundAmount');
+    clearState('vc_tab');
   }
 
   async function toggleFreeze() {
@@ -91,6 +101,8 @@ export default function VirtualCardPage() {
     setSuccess(`Card funded with $${amt}!`);
     setFundAmount('');
     setLoading(false);
+    clearState('vc_fundAmount');
+    clearState('vc_tab');
   }
 
   return (

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Zap, CheckCircle2, AlertCircle, Copy } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
+import { saveState, loadState, clearState } from '../../lib/sessionState';
 
 const PROVIDERS = [
   { id: 'IKEDC', name: 'Ikeja Electric (IKEDC)' },
@@ -20,20 +21,26 @@ const QUICK_AMOUNTS = [1000, 2000, 5000, 10000, 20000, 50000];
 function generateRef() {
   return `PC-ELEC-${Date.now()}-${Math.random().toString(36).slice(2,7).toUpperCase()}`;
 }
+
 function generateToken() {
   return Array.from({length:4}, () => Math.floor(1000 + Math.random()*9000)).join('-');
 }
 
 export default function ElectricityPage() {
   const { user } = useAuth();
-  const [provider, setProvider] = useState('');
-  const [meterType, setMeterType] = useState('Prepaid');
-  const [meterNumber, setMeterNumber] = useState('');
-  const [amount, setAmount] = useState('');
+  const [provider, setProvider] = useState<string>(() => loadState<string>('elec_provider') || '');
+  const [meterType, setMeterType] = useState<string>(() => loadState<string>('elec_meterType') || 'Prepaid');
+  const [meterNumber, setMeterNumber] = useState<string>(() => loadState<string>('elec_meterNumber') || '');
+  const [amount, setAmount] = useState<string>(() => loadState<string>('elec_amount') || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [token, setToken] = useState('');
+  const [token, setToken] = useState<string>(() => loadState<string>('elec_token') || '');
   const [copied, setCopied] = useState(false);
+
+  function handleSetProvider(val: string) { setProvider(val); saveState('elec_provider', val); }
+  function handleSetMeterType(val: string) { setMeterType(val); saveState('elec_meterType', val); }
+  function handleSetMeterNumber(val: string) { setMeterNumber(val); saveState('elec_meterNumber', val); }
+  function handleSetAmount(val: string) { setAmount(val); saveState('elec_amount', val); }
 
   async function handlePurchase() {
     setError('');
@@ -61,6 +68,7 @@ export default function ElectricityPage() {
 
     await supabase.from('wallets').update({ balance: Number(wallet.balance) - amt }).eq('id', wallet.id);
     setToken(tok);
+    saveState('elec_token', tok);
     setLoading(false);
   }
 
@@ -68,6 +76,17 @@ export default function ElectricityPage() {
     navigator.clipboard.writeText(token);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  function handleBuyAgain() {
+    setToken('');
+    setMeterNumber('');
+    setAmount('');
+    setProvider('');
+    clearState('elec_token');
+    clearState('elec_meterNumber');
+    clearState('elec_amount');
+    clearState('elec_provider');
   }
 
   if (token) return (
@@ -90,8 +109,7 @@ export default function ElectricityPage() {
           <p><strong>Provider:</strong> {provider}</p>
           <p><strong>Amount:</strong> ₦{Number(amount).toLocaleString()}</p>
         </div>
-        <button onClick={() => { setToken(''); setMeterNumber(''); setAmount(''); setProvider(''); }}
-          className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl">Buy Again</button>
+        <button onClick={handleBuyAgain} className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl">Buy Again</button>
       </div>
     </div>
   );
@@ -114,7 +132,7 @@ export default function ElectricityPage() {
         <div className="bg-white rounded-2xl p-5 border border-gray-100 space-y-5">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">Electricity Provider</label>
-            <select value={provider} onChange={e => setProvider(e.target.value)}
+            <select value={provider} onChange={e => handleSetProvider(e.target.value)}
               className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 bg-white">
               <option value="">Select provider</option>
               {PROVIDERS.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -125,7 +143,7 @@ export default function ElectricityPage() {
             <label className="block text-sm font-semibold text-gray-700 mb-2">Meter Type</label>
             <div className="grid grid-cols-2 gap-2">
               {METER_TYPES.map(t => (
-                <button key={t} onClick={() => setMeterType(t)}
+                <button key={t} onClick={() => handleSetMeterType(t)}
                   className={`py-3 rounded-xl text-sm font-bold border-2 ${meterType === t ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-500'}`}>
                   {t}
                 </button>
@@ -135,19 +153,19 @@ export default function ElectricityPage() {
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">Meter Number</label>
-            <input type="text" value={meterNumber} onChange={e => setMeterNumber(e.target.value)}
+            <input type="text" value={meterNumber} onChange={e => handleSetMeterNumber(e.target.value)}
               placeholder="Enter meter number"
               className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl font-mono focus:outline-none focus:border-blue-500" />
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">Amount (₦)</label>
-            <input type="number" value={amount} onChange={e => setAmount(e.target.value)}
+            <input type="number" value={amount} onChange={e => handleSetAmount(e.target.value)}
               placeholder="Enter amount"
               className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl text-xl font-bold focus:outline-none focus:border-blue-500" />
             <div className="grid grid-cols-3 gap-2 mt-2">
               {QUICK_AMOUNTS.map(q => (
-                <button key={q} onClick={() => setAmount(String(q))}
+                <button key={q} onClick={() => handleSetAmount(String(q))}
                   className={`py-2 rounded-xl text-xs font-bold border-2 ${amount === String(q) ? 'bg-blue-600 text-white border-blue-500' : 'bg-white text-gray-600 border-gray-100'}`}>
                   ₦{q.toLocaleString()}
                 </button>

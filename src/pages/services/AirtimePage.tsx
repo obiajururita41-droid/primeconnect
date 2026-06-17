@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { saveState, loadState } from '../../lib/sessionState';
 import { Phone, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
@@ -18,9 +19,9 @@ function generateRef() {
 
 export default function AirtimePage() {
   const { user } = useAuth();
-  const [network, setNetwork]   = useState('');
-  const [phone, setPhone]       = useState('');
-  const [amount, setAmount]     = useState('');
+  const [network, setNetwork] = useState(() => loadState<string>('airtime_network') || '');
+  const [phone, setPhone] = useState(() => loadState<string>('airtime_phone') || '');
+  const [amount, setAmount] = useState(() => loadState<string>('airtime_amount') || '');
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
   const [success, setSuccess]   = useState('');
