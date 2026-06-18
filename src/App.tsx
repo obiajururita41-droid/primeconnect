@@ -13,6 +13,7 @@ import FAQ from './pages/FAQ';
 import Contact from './pages/Contact';
 import Services from './pages/Services';
 import AdminDashboard from './pages/AdminDashboard';
+import ImportCalculatorPage from './pages/services/ImportCalculatorPage';
 import VirtualSMSPage from './pages/services/VirtualSMSPage';
 import AirtimePage from './pages/services/AirtimePage';
 import DataPage from './pages/services/DataPage';
@@ -52,6 +53,7 @@ function App() {
           <Route path="/services/bulk-sms" element={<ProtectedRoute><BulkSMSPage /></ProtectedRoute>} />
           <Route path="/services/airtime-to-cash" element={<ProtectedRoute><AirtimeToCashPage /></ProtectedRoute>} />
           <Route path="/services/betting" element={<ProtectedRoute><BettingPage /></ProtectedRoute>} />
+          <Route path="/services/import-calculator" element={<ProtectedRoute><ImportCalculatorPage /></ProtectedRoute>} />
           <Route path="/services/savings" element={<ProtectedRoute><SavingsPage /></ProtectedRoute>} />
           <Route path="/services/tv-subscription" element={<ProtectedRoute><TVSubscriptionPage /></ProtectedRoute>} />
           <Route path="/services/electricity" element={<ProtectedRoute><ElectricityPage /></ProtectedRoute>} />

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Package } from 'lucide-react';
 import {
   Wallet, Plus, ArrowUpRight, ArrowDownLeft,
   Copy, CheckCircle, Phone, Wifi, Tv, Zap, Users, Eye, EyeOff, X, AlertCircle, MessageSquare,
@@ -288,6 +289,7 @@ const Dashboard = () => {
     { label: 'Bet Funding',icon: <Zap className="w-6 h-6" />,          color: 'bg-red-500',    path: '/services/betting' },
     { label: 'TV Sub',      icon: <Tv className="w-6 h-6" />,          color: 'bg-pink-600',   path: '/services/tv-subscription' },
     { label: 'Electricity', icon: <Zap className="w-6 h-6" />,          color: 'bg-yellow-500', path: '/services/electricity' },
+    { label: 'Import Calc', icon: <Package className="w-6 h-6" />, color: 'bg-blue-800', path: '/services/import-calculator' },
     { label: 'Savings',     icon: <PiggyBank className="w-6 h-6" />,     color: 'bg-teal-600',   path: '/services/savings' },
   ];
 
