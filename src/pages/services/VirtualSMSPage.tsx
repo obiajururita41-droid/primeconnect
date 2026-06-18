@@ -134,13 +134,13 @@ export default function VirtualSMSPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const autoCheckRef = useRef<any>(null);
-  useEffect(() => { if (order) saveState('sms_order', order); else clearState('sms_order'); }, [order]);
 
   const [selectedCountry, setSelectedCountry] = useState<Country>(COUNTRY_LIST[0]);
   const [services, setServices] = useState<Service[]>([]);
   const [grouped, setGrouped] = useState<Record<string, Service[]>>({});
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [order, setOrder] = useState<Order | null>(() => loadState<Order>('sms_order'));
+  useEffect(() => { if (order) saveState('sms_order', order); else clearState('sms_order'); }, [order]);
   const [myNumbers, setMyNumbers] = useState<Order[]>([]);
   const [loadingServices, setLoadingServices] = useState(false);
   const [loading, setLoading] = useState(false);
