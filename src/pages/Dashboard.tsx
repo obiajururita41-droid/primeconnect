@@ -288,7 +288,6 @@ const Dashboard = () => {
     { label: 'Bet Funding',icon: <Zap className="w-6 h-6" />,          color: 'bg-red-500',    path: '/services/betting' },
     { label: 'TV Sub',      icon: <Tv className="w-6 h-6" />,          color: 'bg-pink-600',   path: '/services/tv-subscription' },
     { label: 'Electricity', icon: <Zap className="w-6 h-6" />,          color: 'bg-yellow-500', path: '/services/electricity' },
-    { label: 'Virtual Card',icon: <CreditCard className="w-6 h-6" />,    color: 'bg-indigo-600', path: '/services/virtual-card' },
     { label: 'Savings',     icon: <PiggyBank className="w-6 h-6" />,     color: 'bg-teal-600',   path: '/services/savings' },
   ];
 

@@ -8,7 +8,6 @@ const services = [
   { icon: MessageSquare, title: 'Virtual SMS', desc: 'Send bulk SMS messages to any number nationwide.', color: 'bg-orange-50 text-orange-600', route: '/services/virtual-sms' },
   { icon: Tv, title: 'TV Subscription', desc: 'Pay for DSTV, GoTV, Startimes and more with ease.', color: 'bg-pink-50 text-pink-600', route: '/services/tv-subscription' },
   { icon: Zap, title: 'Electricity', desc: 'Buy prepaid and postpaid electricity tokens instantly.', color: 'bg-yellow-50 text-yellow-600', route: '/services/electricity' },
-  { icon: CreditCard, title: 'Virtual Card', desc: 'Create virtual USD/NGN cards for online payments.', color: 'bg-indigo-50 text-indigo-600', route: '/services/virtual-card' },
   { icon: PiggyBank, title: 'Savings', desc: 'Grow your money with our flexible savings plans.', color: 'bg-teal-50 text-teal-600', route: '/services/savings' },
   { icon: Receipt, title: 'Bill Payments', desc: 'Pay all your bills quickly and securely in one place.', color: 'bg-teal-50 text-teal-600', route: '/services' },
 ];

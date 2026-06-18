@@ -22,7 +22,6 @@ import BettingPage from './pages/services/BettingPage';
 import SavingsPage from './pages/services/SavingsPage';
 import TVSubscriptionPage from './pages/services/TVSubscriptionPage';
 import ElectricityPage from './pages/services/ElectricityPage';
-import VirtualCardPage from './pages/services/VirtualCardPage';
 import AIHub from './pages/AIHub';
 import TransactionHistory from './pages/TransactionHistory';
 import ReferralPage from './pages/ReferralPage';
@@ -56,7 +55,6 @@ function App() {
           <Route path="/services/savings" element={<ProtectedRoute><SavingsPage /></ProtectedRoute>} />
           <Route path="/services/tv-subscription" element={<ProtectedRoute><TVSubscriptionPage /></ProtectedRoute>} />
           <Route path="/services/electricity" element={<ProtectedRoute><ElectricityPage /></ProtectedRoute>} />
-          <Route path="/services/virtual-card" element={<ProtectedRoute><VirtualCardPage /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/ai-hub" element={<ProtectedRoute><AIHub /></ProtectedRoute>} />
           <Route path="/transactions" element={<ProtectedRoute><TransactionHistory /></ProtectedRoute>} />
