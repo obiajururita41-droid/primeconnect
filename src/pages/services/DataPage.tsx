@@ -5,10 +5,10 @@ import { supabase } from '../../lib/supabaseClient';
 import { saveState, loadState, clearState } from '../../lib/sessionState';
 
 const NETWORKS = [
-  { id: 'mtn',     name: 'MTN',     color: 'bg-yellow-400', text: 'text-black' },
-  { id: 'airtel',  name: 'Airtel',  color: 'bg-red-500',    text: 'text-white' },
-  { id: 'glo',     name: 'Glo',     color: 'bg-green-600',  text: 'text-white' },
-  { id: '9mobile', name: '9mobile', color: 'bg-green-800',  text: 'text-white' },
+  { id: 'mtn',     name: 'MTN',     color: 'bg-yellow-400', text: 'text-black',  networkKey: 'MTN' },
+  { id: 'airtel',  name: 'Airtel',  color: 'bg-red-500',    text: 'text-white',  networkKey: 'Airtel' },
+  { id: 'glo',     name: 'Glo',     color: 'bg-green-600',  text: 'text-white',  networkKey: 'Glo' },
+  { id: '9mobile', name: '9mobile', color: 'bg-green-800',  text: 'text-white',  networkKey: '9mobile' },
 ];
 
 interface DataPlan { id: string; name: string; amount: number; }
@@ -48,18 +48,26 @@ export default function DataPage() {
 
   useEffect(() => {
     if (!network) return;
-    setPlans([]); setSelectedPlan(null); setLoadingPlans(true);
+    setPlans([]); setSelectedPlan(null); setLoadingPlans(true); setError('');
+    const selectedNet = NETWORKS.find(n => n.id === network);
     callClubKonnect('get_data_plans', { network })
       .then((res) => {
-        if (Array.isArray(res)) {
-          const formatted = res.map((p: any) => ({
-            id: p.DataPlan || p.id,
-            name: p.DataPlanName || p.name,
-            amount: Number(p.DataPlanAmount || p.amount),
-          }));
-          setPlans(formatted);
-        } else {
-          setError('Failed to load plans');
+        try {
+          const networkKey = selectedNet?.networkKey || 'MTN';
+          const networkData = res?.MOBILE_NETWORK?.[networkKey];
+          if (networkData && Array.isArray(networkData) && networkData[0]?.PRODUCT) {
+            const products = networkData[0].PRODUCT;
+            const formatted = products.map((p: any) => ({
+              id: p.PRODUCT_ID,
+              name: p.PRODUCT_NAME,
+              amount: Math.round(Number(p.PRODUCT_AMOUNT)),
+            }));
+            setPlans(formatted);
+          } else {
+            setError('No plans available for this network');
+          }
+        } catch {
+          setError('Failed to parse plans');
         }
       })
       .catch(() => setError('Failed to load plans'))
