@@ -80,7 +80,7 @@ export default function AirtimePage() {
     if (res?.statuscode === '100' || res?.statuscode === '200' || res?.status === 'ORDER_RECEIVED' || res?.status === 'ORDER_COMPLETED') {
       await supabase.rpc('debit_wallet', { p_user_id: user?.id, p_amount: numAmount, p_reference: reference });
       await supabase.from('transactions').update({ status: 'success', metadata: { ...res } }).eq('reference', reference);
-      setSuccess(`✅ ₦${numAmount} airtime sent to ${phone}!`);
+      setSuccess(`Airtime sent successfully to ${phone}!`);
       setPhone(''); setAmount(''); setNetwork('');
       clearState('airtime_network'); clearState('airtime_phone'); clearState('airtime_amount');
     } else {

@@ -60,7 +60,7 @@ export default function DataPage() {
             const formatted = products.map((p: any) => ({
               id: p.PRODUCT_ID,
               name: p.PRODUCT_NAME,
-              amount: Math.round(Number(p.PRODUCT_AMOUNT)),
+              amount: Math.round(Number(p.PRODUCT_AMOUNT) * 1.10),
             }));
             setPlans(formatted);
           } else {
