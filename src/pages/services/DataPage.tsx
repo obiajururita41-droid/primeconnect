@@ -59,8 +59,8 @@ export default function DataPage() {
             const products = networkData[0].PRODUCT;
             const formatted = products.map((p: any) => ({
               id: p.PRODUCT_ID,
-              name: p.PRODUCT_NAME,
-              amount: Math.round(Number(p.PRODUCT_AMOUNT) * 1.10),
+              name: p.PRODUCT_NAME.replace(" (Awoof Data)", "").replace(" (Direct Data)", "").replace(" (SME)", ""),
+              amount: Math.round(Number(p.PRODUCT_AMOUNT) * 1.05),
             }));
             setPlans(formatted);
           } else {
