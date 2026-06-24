@@ -76,7 +76,7 @@ export default function WithdrawalPage() {
       body: { account_number: accountNumber, account_bank: bankCode, account_name: accountName, amount: Number(amount), narration: narration || undefined },
     });
     setSubmitting(false);
-    if (error || data?.error) { setError(data?.error || 'Transfer failed. Please try again.'); return; }
+    if (error || data?.error) { setError(error?.message || JSON.stringify(data) || 'Transfer failed'); return; }
     setSuccess(`Transfer initiated! Reference: ${data.reference}`);
     setBalance(data.new_balance);
     if (saveRecipient) {

@@ -16,14 +16,25 @@ function generateRef(): string {
   return `PC-PS-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 }
 
+function loadPaystackScript(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if ((window as any).PaystackPop) { resolve(); return; }
+    const existing = document.getElementById('paystack-script');
+    if (existing) { existing.addEventListener('load', () => resolve()); return; }
+    const script = document.createElement('script');
+    script.id = 'paystack-script';
+    script.src = 'https://js.paystack.co/v1/inline.js';
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Failed to load Paystack'));
+    document.body.appendChild(script);
+  });
+}
+
 export function usePaystackFunding() {
   const fundWallet = useCallback(async (opts: FundWalletOptions) => {
     const { amount, userEmail, userName, userPhone, userId, walletId, onSuccess, onError } = opts;
 
-    if (amount < 100) {
-      onError('Minimum funding amount is ₦100');
-      return;
-    }
+    if (amount < 100) { onError('Minimum funding amount is ₦100'); return; }
 
     const reference = generateRef();
 
@@ -38,51 +49,45 @@ export function usePaystackFunding() {
       metadata:    { provider: 'paystack', email: userEmail },
     });
 
-    if (txError) {
-      onError(`TX Error: ${txError.message}`);
+    if (txError) { onError(`TX Error: ${txError.message}`); return; }
+
+    try {
+      await loadPaystackScript();
+    } catch {
+      onError('Could not load payment system. Check your internet connection.');
       return;
     }
 
-    const initPayment = () => {
-      // @ts-ignore
-      const handler = PaystackPop.setup({
-        key:       import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
-        email:     userEmail || `user-${userId}@primeconnect.ng`,
-        amount:    amount * 100, // Paystack uses kobo
-        currency:  'NGN',
-        ref:       reference,
-        firstname: userName?.split(' ')[0] || '',
-        lastname:  userName?.split(' ')[1] || '',
-        phone:     userPhone,
-        label:     'PrimeConnect Wallet Funding',
-        onClose: () => {},
-        callback: async (response: { reference: string }) => {
-          const { data: sessionData } = await supabase.auth.getSession();
-          const token = sessionData.session?.access_token;
-          const { data, error } = await supabase.functions.invoke('paystack-verify-transaction', {
-            headers: { Authorization: `Bearer ${token}` },
-            body: { reference: response.reference },
-          });
-          if (error || data?.error) {
-            onError('Payment verification failed. Contact support. Ref: ' + reference);
-          } else {
-            onSuccess();
-          }
-        },
-      });
-      handler.openIframe();
-    };
+    const PaystackPop = (window as any).PaystackPop;
+    if (!PaystackPop) { onError('Payment system not available. Please refresh and try again.'); return; }
 
-    const existing = document.getElementById('paystack-script');
-    if (existing) {
-      initPayment();
-    } else {
-      const script = document.createElement('script');
-      script.id    = 'paystack-script';
-      script.src   = 'https://js.paystack.co/v1/inline.js';
-      script.onload = initPayment;
-      document.body.appendChild(script);
-    }
+    const handler = PaystackPop.setup({
+      key:      import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+      email:    userEmail || `user-${userId}@primeconnect.ng`,
+      amount:   amount * 100,
+      currency: 'NGN',
+      ref:      reference,
+      label:    'PrimeConnect Wallet Funding',
+      onClose:  function() {},
+      callback: function(response: { reference: string }) {
+        const ref = response.reference;
+        supabase.auth.getSession().then(({ data: sessionData }) => {
+          const token = sessionData.session?.access_token;
+          supabase.functions.invoke('paystack-verify-transaction', {
+            headers: { Authorization: `Bearer ${token}` },
+            body: { reference: ref },
+          }).then(({ data, error }) => {
+            if (error || data?.error) {
+              onError('Payment verification failed. Contact support. Ref: ' + ref);
+            } else {
+              onSuccess();
+            }
+          });
+        });
+      },
+    });
+
+    handler.openIframe();
   }, []);
 
   return { fundWallet };

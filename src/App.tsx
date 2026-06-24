@@ -31,6 +31,7 @@ import Settings from './pages/Settings';
 import NotificationsPage from './pages/NotificationsPage';
 import ScanPayPage from './pages/ScanPayPage';
 import PaymentVerifyPage from './pages/PaymentVerifyPage';
+import SendMoneyPage from './pages/SendMoneyPage';
 
 function App() {
   return (
@@ -66,6 +67,7 @@ function App() {
           <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
           <Route path="/scan" element={<ProtectedRoute><ScanPayPage /></ProtectedRoute>} />
           <Route path="/payment/verify" element={<ProtectedRoute><PaymentVerifyPage /></ProtectedRoute>} />
+          <Route path="/send" element={<ProtectedRoute><SendMoneyPage /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
         </Routes>
         <SiteFooter />

@@ -230,7 +230,7 @@ const Dashboard = () => {
     const { data: sessionData } = await supabase.auth.getSession();
     const token = sessionData.session?.access_token;
 
-    const { data, error } = await supabase.functions.invoke('flutterwave-create-virtual-account', {
+    const { data, error } = await supabase.functions.invoke('paystack-create-virtual-account', {
       headers: { Authorization: `Bearer ${token}` },
       body: { bvn },
     });
@@ -401,7 +401,7 @@ const Dashboard = () => {
             <div className="flex items-center justify-between relative">
               {[
                 { label: 'Add Money', icon: <Plus className="w-4 h-4" />,         action: () => { setShowFund(true); checkVirtualAccount(); } },
-                { label: 'Transfer',  icon: <Send className="w-4 h-4" />,         action: () => navigate('/withdrawal') },
+                { label: 'Transfer',  icon: <Send className="w-4 h-4" />,         action: () => navigate('/send') },
                 { label: 'Withdraw',  icon: <ArrowUpRight className="w-4 h-4" />, action: () => navigate('/withdrawal') },
                 { label: 'History',   icon: <History className="w-4 h-4" />,      action: () => navigate('/transactions') },
               ].map((btn) => (
