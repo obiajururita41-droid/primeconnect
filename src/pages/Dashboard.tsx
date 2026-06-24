@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
-import { usePaystackFunding } from '../hooks/useFlutterwave';
+import { usePaystackFunding } from '../hooks/usePaystack';
 
 interface WalletData {
   id: string;
@@ -849,7 +849,7 @@ const Dashboard = () => {
                             userId: user?.id ?? '',
                             walletId: wallet?.id ?? '',
                             onSuccess: () => { setShowFund(false); setAmount(''); fetchData(); },
-                            onError: (msg) => setError(msg),
+                            onError: (msg: string) => setError(msg),
                           });
                         }}
                         className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-3.5 rounded-2xl text-sm hover:opacity-90 transition-opacity shadow-lg shadow-blue-200 flex items-center justify-center gap-2"

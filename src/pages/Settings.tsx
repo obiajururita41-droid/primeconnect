@@ -68,7 +68,7 @@ export default function Settings() {
           </div>
         </div>
         <div className="max-w-md mx-auto px-4 -mt-2 pb-6">
-          {activeTab === 'profile' && <ProfileTab user={user} profile={profile} refreshProfile={refreshProfile} showToast={showToast} />}
+          
           {activeTab === 'security' && <SecurityTab user={user} profile={profile} refreshProfile={refreshProfile} showToast={showToast} />}
           {activeTab === 'wallet' && <WalletTab user={user} showToast={showToast} />}
           {activeTab === 'notifications' && <NotificationsTab user={user} showToast={showToast} />}
@@ -125,9 +125,9 @@ export default function Settings() {
           {/* Stats row */}
           <div className="grid grid-cols-3 gap-3 mt-5">
             {[
-              { label: 'Wallet', value: '₦' + Number(profile?.wallet_balance ?? 0).toLocaleString('en-NG', {minimumFractionDigits:0}) },
+              { label: 'Wallet', value: '₦' + Number((profile as any)?.wallet_balance ?? 0).toLocaleString('en-NG', {minimumFractionDigits:0}) },
               { label: 'Referrals', value: String(profile?.referral_count ?? 0) },
-              { label: 'Orders', value: String(profile?.order_count ?? 0) },
+              { label: 'Orders', value: String((profile as any)?.order_count ?? 0) },
             ].map(stat => (
               <div key={stat.label} className="bg-white/10 rounded-2xl px-3 py-3 text-center">
                 <p className="text-white font-black text-base">{stat.value}</p>
