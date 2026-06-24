@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">PrimeConnect</string>
+    <string name="title_activity_main">PrimeConnect</string>
+    <string name="package_name">com.primeconnect.app</string>
+    <string name="custom_url_scheme">com.primeconnect.app</string>
+</resources>
