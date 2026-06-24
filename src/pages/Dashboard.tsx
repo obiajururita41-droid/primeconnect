@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
-import { useFlutterwaveFunding } from '../hooks/useFlutterwave';
+import { usePaystackFunding } from '../hooks/useFlutterwave';
 
 interface WalletData {
   id: string;
@@ -143,7 +143,7 @@ function InsightsDashboard({ userId, referralEarnings }: { userId: string; refer
 const Dashboard = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const { fundWallet } = useFlutterwaveFunding();
+  const { fundWallet } = usePaystackFunding();
 
   const [wallet, setWallet] = useState<WalletData | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -278,19 +278,19 @@ const Dashboard = () => {
   };
 
   const quickActions = [
-    { label: 'Airtime',    icon: <Phone className="w-6 h-6" />,        color: 'bg-blue-600',   path: '/services/airtime' },
-    { label: 'Data',       icon: <Wifi className="w-6 h-6" />,         color: 'bg-blue-600',   path: '/services/data' },
-    { label: 'Virtual SMS',icon: <MessageSquare className="w-6 h-6" />,color: 'bg-cyan-600',   path: '/services/virtual-sms' },
-    { label: 'Bulk SMS',   icon: <Send className="w-6 h-6" />,         color: 'bg-teal-600',   path: '/services/bulk-sms' },
-    { label: 'Fund Wallet',icon: <Plus className="w-6 h-6" />,         color: 'bg-blue-600',   path: null },
-    { label: 'Withdraw',   icon: <ArrowUpRight className="w-6 h-6" />, color: 'bg-orange-500', path: '/withdrawal' },
-    { label: 'Refer & Earn',icon: <Users className="w-6 h-6" />,       color: 'bg-pink-600',   path: '/referral' },
-    { label: 'A2 Cash',    icon: <TrendingUp className="w-6 h-6" />,   color: 'bg-green-600',  path: '/services/airtime-to-cash' },
-    { label: 'Bet Funding',icon: <Zap className="w-6 h-6" />,          color: 'bg-red-500',    path: '/services/betting' },
-    { label: 'TV Sub',      icon: <Tv className="w-6 h-6" />,          color: 'bg-pink-600',   path: '/services/tv-subscription' },
-    { label: 'Electricity', icon: <Zap className="w-6 h-6" />,          color: 'bg-yellow-500', path: '/services/electricity' },
-    { label: 'Import Calc', icon: <Package className="w-6 h-6" />, color: 'bg-blue-800', path: '/services/import-calculator' },
-    { label: 'Savings',     icon: <PiggyBank className="w-6 h-6" />,     color: 'bg-teal-600',   path: '/services/savings' },
+    { label: 'Airtime',     icon: <Phone className="w-5 h-5" />,        bg: 'bg-blue-600',    shadow: 'shadow-blue-200',   path: '/services/airtime' },
+    { label: 'Data',        icon: <Wifi className="w-5 h-5" />,         bg: 'bg-blue-500',    shadow: 'shadow-blue-200',   path: '/services/data' },
+    { label: 'Virtual SMS', icon: <MessageSquare className="w-5 h-5" />,bg: 'bg-indigo-600',  shadow: 'shadow-indigo-200', path: '/services/virtual-sms' },
+    { label: 'Bulk SMS',    icon: <Send className="w-5 h-5" />,         bg: 'bg-indigo-500',  shadow: 'shadow-indigo-200', path: '/services/bulk-sms' },
+    { label: 'Fund Wallet', icon: <Plus className="w-5 h-5" />,         bg: 'bg-emerald-500', shadow: 'shadow-emerald-200',path: null },
+    { label: 'Withdraw',    icon: <ArrowUpRight className="w-5 h-5" />, bg: 'bg-orange-500',  shadow: 'shadow-orange-200', path: '/withdrawal' },
+    { label: 'Refer & Earn',icon: <Users className="w-5 h-5" />,        bg: 'bg-pink-500',    shadow: 'shadow-pink-200',   path: '/referral' },
+    { label: 'A2 Cash',     icon: <TrendingUp className="w-5 h-5" />,   bg: 'bg-emerald-600', shadow: 'shadow-emerald-200',path: '/services/airtime-to-cash' },
+    { label: 'Bet Funding', icon: <Zap className="w-5 h-5" />,          bg: 'bg-red-500',     shadow: 'shadow-red-200',    path: '/services/betting' },
+    { label: 'TV Sub',      icon: <Tv className="w-5 h-5" />,           bg: 'bg-purple-500',  shadow: 'shadow-purple-200', path: '/services/tv-subscription' },
+    { label: 'Electricity', icon: <Zap className="w-5 h-5" />,          bg: 'bg-yellow-500',  shadow: 'shadow-yellow-200', path: '/services/electricity' },
+    { label: 'Import Calc', icon: <Package className="w-5 h-5" />,      bg: 'bg-slate-600',   shadow: 'shadow-slate-200',  path: '/services/import-calculator' },
+    { label: 'Savings',     icon: <PiggyBank className="w-5 h-5" />,    bg: 'bg-teal-500',    shadow: 'shadow-teal-200',   path: '/services/savings' },
   ];
 
   const firstName = profile?.full_name?.split(' ')?.[0] ?? 'User';
@@ -326,41 +326,42 @@ const Dashboard = () => {
       <div className="max-w-md mx-auto">
 
         {/* Top Bar */}
-        <div className="flex items-center justify-between px-4 pt-6 pb-4 bg-white">
+        <div className="flex items-center justify-between px-4 pt-8 pb-4 bg-white border-b border-gray-100">
           <div className="flex items-center gap-3">
             {/* Avatar */}
-            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm overflow-hidden">
-              {profile?.avatar_url
-                ? <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
-                : avatarInitials}
+            <div className="relative">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-black text-base overflow-hidden shadow-lg shadow-blue-200">
+                {profile?.avatar_url
+                  ? <img src={profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
+                  : avatarInitials}
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-400 rounded-full border-2 border-white" />
             </div>
             <div>
-              <p className="font-bold text-gray-900 text-sm">{new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 17 ? "Good afternoon" : "Good evening"}, {firstName} 👋</p>
-              <p className="text-xs text-gray-400">Welcome back to PrimeConnect</p>
-              <div className="flex items-center gap-1 mt-0.5">
+              <p className="font-black text-gray-900 text-sm leading-tight">
+                {new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 17 ? "Good afternoon" : "Good evening"}, {firstName} 👋
+              </p>
+              <div className="flex items-center gap-1 mt-1">
                 <CheckCircle className="w-3 h-3 text-blue-500" />
-                <span className="text-xs text-blue-500 font-medium">Verified Account</span>
+                <span className="text-xs text-blue-500 font-semibold">Verified Account</span>
               </div>
             </div>
           </div>
-          {/* Refer & Earn pill + Bell */}
+          {/* Bell + Points */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigate('/referral')}
-              className="flex flex-col items-end bg-white border border-gray-100 rounded-xl px-3 py-1.5 shadow-sm"
+              className="flex items-center gap-1.5 bg-green-50 border border-green-100 rounded-2xl px-3 py-2"
             >
-              <div className="flex items-center gap-1">
-                <Users className="w-3 h-3 text-gray-400" />
-                <span className="text-xs text-gray-500">Refer & Earn</span>
-              </div>
-              <span className="text-sm font-bold text-green-500">₦{Number(referralEarnings).toLocaleString('en-NG', { minimumFractionDigits: 2 })}</span>
+              <Star className="w-3.5 h-3.5 text-green-500" />
+              <span className="text-xs font-black text-green-600">₦{Number(referralEarnings).toLocaleString('en-NG', { minimumFractionDigits: 0 })}</span>
             </button>
             <button
               onClick={() => navigate('/notifications')}
-              className="relative w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center active:scale-95 transition-transform"
+              className="relative w-10 h-10 rounded-2xl bg-gray-100 flex items-center justify-center active:scale-95 transition-transform"
             >
-              <Bell className="w-4 h-4 text-gray-600" />
-              <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold">3</span>
+              <Bell className="w-4.5 h-4.5 text-gray-700" />
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-black">3</span>
             </button>
           </div>
         </div>
@@ -420,12 +421,18 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="mx-4 bg-white rounded-2xl p-4 mb-4 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-gray-800 text-base">Quick Actions</h2>
-            <button onClick={() => navigate('/services')} className="text-xs text-blue-600 font-semibold bg-blue-50 px-2.5 py-1 rounded-lg">View All ›</button>
+        <div className="mx-4 bg-white rounded-3xl p-5 mb-4 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="font-black text-gray-900 text-base">Quick Actions</h2>
+              <p className="text-xs text-gray-400 mt-0.5">What do you want to do?</p>
+            </div>
+            <button onClick={() => navigate('/services')}
+              className="text-xs text-blue-600 font-bold bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-100">
+              View All ›
+            </button>
           </div>
-          <div className="grid grid-cols-5 gap-y-4 gap-x-2">
+          <div className="grid grid-cols-4 gap-x-3 gap-y-5">
             {quickActions.filter(action => {
               if (action.label === 'Airtime')      return serviceSettings.airtime_enabled;
               if (action.label === 'Data')         return serviceSettings.data_enabled;
@@ -441,12 +448,12 @@ const Dashboard = () => {
                   if (action.path) navigate(action.path);
                   else if (action.label === 'Fund Wallet') { setShowFund(true); checkVirtualAccount(); }
                 }}
-                className="flex flex-col items-center gap-2 active:scale-90 transition-all duration-150"
+                className="flex flex-col items-center gap-2.5 active:scale-90 transition-all duration-150"
               >
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md ${action.color}`}>
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg ${action.bg} ${action.shadow}`}>
                   {action.icon}
                 </div>
-                <span className="text-[9px] text-gray-500 text-center leading-tight font-semibold w-full truncate px-0.5">{action.label}</span>
+                <span className="text-[10px] text-gray-600 text-center leading-tight font-semibold w-full px-0.5" style={{wordBreak:'break-word'}}>{action.label}</span>
               </button>
             ))}
           </div>

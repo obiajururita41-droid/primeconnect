@@ -34,7 +34,7 @@ export default function WithdrawalPage() {
   }
 
   async function fetchBanks() {
-    const { data, error } = await supabase.functions.invoke('flutterwave-get-banks');
+    const { data, error } = await supabase.functions.invoke('paystack-get-banks');
     if (!error && data?.banks) setBanks(data.banks.sort((a: Bank, b: Bank) => a.name.localeCompare(b.name)));
   }
 
@@ -48,7 +48,7 @@ export default function WithdrawalPage() {
   async function verifyAccount() {
     if (!bankCode || accountNumber.length < 10) return;
     setVerifying(true); setError(''); setAccountName('');
-    const { data, error } = await supabase.functions.invoke('flutterwave-verify-account', { body: { account_number: accountNumber, account_bank: bankCode } });
+    const { data, error } = await supabase.functions.invoke('paystack-verify-account', { body: { account_number: accountNumber, account_bank: bankCode } });
     setVerifying(false);
     if (error || data?.error) { setError(data?.error || 'Could not verify account.'); return; }
     setAccountName(data.account_name);
@@ -71,7 +71,7 @@ export default function WithdrawalPage() {
     setSubmitting(true);
     const { data: sessionData } = await supabase.auth.getSession();
     const token = sessionData.session?.access_token;
-    const { data, error } = await supabase.functions.invoke('flutterwave-transfer', {
+    const { data, error } = await supabase.functions.invoke('paystack-transfer', {
       headers: { Authorization: `Bearer ${token}` },
       body: { account_number: accountNumber, account_bank: bankCode, account_name: accountName, amount: Number(amount), narration: narration || undefined },
     });

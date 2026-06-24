@@ -10,9 +10,8 @@ export default function PaymentVerifyPage() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    const ref = searchParams.get('ref');
-    const txId = searchParams.get('transaction_id');
-    const txStatus = searchParams.get('status');
+    const ref = searchParams.get('reference') || searchParams.get('ref');
+    const txStatus = searchParams.get('trxref');
 
     if (!ref) {
       setStatus('error');
@@ -20,31 +19,22 @@ export default function PaymentVerifyPage() {
       return;
     }
 
-    if (txStatus === 'cancelled') {
-      setStatus('error');
-      setMessage('Payment was cancelled.');
-      return;
-    }
-
-    verifyPayment(txId, ref);
+    verifyPayment(ref);
   }, []);
 
-  async function verifyPayment(transactionId: string | null, ref: string) {
+  async function verifyPayment(reference: string) {
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData.session?.access_token;
 
-      const { data, error } = await supabase.functions.invoke('flutterwave-verify-transaction', {
+      const { data, error } = await supabase.functions.invoke('paystack-verify-transaction', {
         headers: { Authorization: `Bearer ${token}` },
-        body: {
-          transaction_id: transactionId ? Number(transactionId) : null,
-          tx_ref: ref,
-        },
+        body: { reference },
       });
 
       if (error || data?.error) {
         setStatus('error');
-        setMessage('Payment verification failed. Contact support with ref: ' + ref);
+        setMessage('Payment verification failed. Contact support with ref: ' + reference);
       } else {
         setStatus('success');
         setMessage('Your wallet has been funded successfully!');
@@ -52,7 +42,7 @@ export default function PaymentVerifyPage() {
       }
     } catch (err) {
       setStatus('error');
-      setMessage('Something went wrong. Please contact support with ref: ' + ref);
+      setMessage('Something went wrong. Please contact support.');
     }
   }
 

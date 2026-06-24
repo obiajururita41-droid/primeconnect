@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
-import { Copy, CheckCircle, RefreshCw, X, Search, ChevronDown } from 'lucide-react';
+import { Copy, CheckCircle, RefreshCw, X, Search, ChevronDown, Phone, Clock, AlertTriangle } from 'lucide-react';
+import CountryDropdown from '../../components/CountryDropdown';
 import { saveState, loadState, clearState } from '../../lib/sessionState';
 
 interface Country { code: string; name: string; flag: string; }
@@ -99,7 +100,6 @@ export default function VirtualSMSPage() {
   const autoCheckRef = useRef<any>(null);
 
   const [selectedCountry, setSelectedCountry] = useState<Country>(COUNTRY_LIST[0]);
-  const [services, setServices] = useState<Service[]>([]);
   const [grouped, setGrouped] = useState<Record<string, Service[]>>({});
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [order, setOrder] = useState<Order | null>(() => loadState<Order>('sms_order'));
@@ -112,11 +112,44 @@ export default function VirtualSMSPage() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [countryOpen, setCountryOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-
-  useEffect(() => { if (order) saveState('sms_order', order); else clearState('sms_order'); }, [order]);
+  const [copiedSms, setCopiedSms] = useState(false);
 
   const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
   const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+  useEffect(() => { if (order) saveState('sms_order', order); else clearState('sms_order'); }, [order]);
+  useEffect(() => { fetchServices(); }, [selectedCountry]);
+
+  const [timeLeft, setTimeLeft] = useState<number>(0);
+
+  useEffect(() => {
+    if (!order || order.status !== 'active') return;
+    const EXPIRY_MINUTES = 19;
+    const created = new Date(order.created_at).getTime();
+
+    const tick = () => {
+      const elapsed = (Date.now() - created) / 1000;
+      const remaining = Math.max(0, EXPIRY_MINUTES * 60 - elapsed);
+      setTimeLeft(Math.floor(remaining));
+      if (remaining <= 0) {
+        callFunction('virtual-sms', { action: 'cancel_order', orderId: order.id }).then(() => {
+          supabase.rpc('credit_wallet', { p_user_id: user?.id, p_amount: order.price, p_reference: 'REFUND-EXP-' + order.id });
+          setOrder(null);
+          setSuccess('Number expired. ₦' + order.price + ' has been refunded to your wallet.');
+        });
+      }
+    };
+
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [order]);
+
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60).toString().padStart(2, '0');
+    const s = (secs % 60).toString().padStart(2, '0');
+    return m + ':' + s;
+  };
 
   async function callFunction(name: string, body: Record<string, any>) {
     try {
@@ -132,13 +165,11 @@ export default function VirtualSMSPage() {
     } catch { return { error: 'Network error' }; }
   }
 
-  useEffect(() => { fetchServices(); }, [selectedCountry]);
-
   async function fetchServices() {
     setLoadingServices(true); setSelectedService(null); setError('');
     const data = await callFunction('get-services', { country: selectedCountry.code });
-    if (data?.services) { setServices(data.services); setGrouped(data.grouped || {}); }
-    else setError('Could not load services.');
+    if (data?.services) { setGrouped(data.grouped || {}); setError(''); }
+    else if (!data?.services && Object.keys(grouped).length === 0) setError('Could not load services.');
     setLoadingServices(false);
   }
 
@@ -199,202 +230,322 @@ export default function VirtualSMSPage() {
     setOrder(null); setSuccess('Order cancelled.');
   }
 
-  function copyText(text: string) {
+  function copyText(text: string, type: 'phone' | 'sms' = 'phone') {
     navigator.clipboard.writeText(text);
-    setCopied(true); setTimeout(() => setCopied(false), 2000);
+    if (type === 'sms') { setCopiedSms(true); setTimeout(() => setCopiedSms(false), 2000); }
+    else { setCopied(true); setTimeout(() => setCopied(false), 2000); }
   }
 
-  // Active Order View
+  // ── Active Order View ──────────────────────────────────────────────
   if (order && order.status === 'active') {
     return (
       <div className="min-h-screen bg-gray-50 pb-24">
-        <div className="bg-gradient-to-br from-blue-700 to-blue-900 px-4 pt-10 pb-16">
+        {/* Header */}
+        <div className="bg-gradient-to-br from-blue-700 to-blue-900 px-4 pt-10 pb-20">
           <div className="max-w-md mx-auto">
-            <h1 className="text-white text-2xl font-black mb-1">Virtual SMS</h1>
-            <p className="text-blue-200 text-sm">Your number is active</p>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center">
+                <Phone className="w-4 h-4 text-white" />
+              </div>
+              <h1 className="text-white text-xl font-black">Virtual SMS</h1>
+            </div>
+            <p className="text-blue-200 text-sm ml-11">Number is active — waiting for OTP</p>
           </div>
         </div>
-        <div className="max-w-md mx-auto px-4 -mt-10 space-y-4">
-          {/* Number Card */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-blue-100 text-sm font-semibold">{order.service}</span>
-                <span className="bg-green-400 text-green-900 text-xs font-black px-3 py-1 rounded-full">ACTIVE</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-white text-3xl font-black tracking-wider">{order.phone}</span>
-                <button onClick={() => copyText(order.phone)}
-                  className="bg-white/20 p-2 rounded-xl">
-                  {copied ? <CheckCircle className="w-5 h-5 text-green-300" /> : <Copy className="w-5 h-5 text-white" />}
-                </button>
-              </div>
-              <p className="text-blue-200 text-xs mt-2">{order.country} • ₦{order.price}</p>
-            </div>
 
-            {/* SMS Result */}
-            {order.sms ? (
-              <div className="p-5">
-                <p className="text-xs font-bold text-gray-500 mb-2">SMS RECEIVED</p>
-                <div className="bg-green-50 rounded-xl p-4 flex items-center justify-between">
-                  <span className="text-2xl font-black text-green-700">{order.sms}</span>
-                  <button onClick={() => copyText(order.sms!)} className="bg-green-100 p-2 rounded-xl">
-                    {copied ? <CheckCircle className="w-5 h-5 text-green-600" /> : <Copy className="w-5 h-5 text-green-600" />}
-                  </button>
-                </div>
+        <div className="max-w-md mx-auto px-4 -mt-14 space-y-3">
+
+          {/* Service badge */}
+          <div className="flex items-center gap-2">
+            <LogoBubble slug={order.service.toLowerCase().replace(/\s/g,'')} name={order.service} />
+            <div>
+              <p className="text-white font-bold text-sm">{order.service}</p>
+              <p className="text-blue-200 text-xs">{order.country} · ₦{order.price}</p>
+            </div>
+            <div className="ml-auto flex flex-col items-end gap-1">
+              <span className="flex items-center gap-1.5 bg-green-400/20 border border-green-400/30 text-green-300 text-xs font-bold px-3 py-1 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                ACTIVE
+              </span>
+              <span className={`text-xs font-black px-2 py-0.5 rounded-full ${timeLeft <= 60 ? 'bg-red-500/30 text-red-300 animate-pulse' : timeLeft <= 180 ? 'bg-yellow-400/20 text-yellow-300' : 'bg-white/10 text-white/70'}`}>
+                ⏱ {formatTime(timeLeft)}
+              </span>
+            </div>
+          </div>
+
+          {/* Phone number card */}
+          <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-5">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Your Virtual Number</p>
+            <div className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
+              <span className="text-2xl font-black text-gray-900 tracking-wider">{order.phone}</span>
+              <button onClick={() => copyText(order.phone, 'phone')}
+                className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center transition-all active:scale-95">
+                {copied
+                  ? <CheckCircle className="w-5 h-5 text-green-500" />
+                  : <Copy className="w-5 h-5 text-blue-600" />}
+              </button>
+            </div>
+            <div className="flex items-center gap-2 mt-3 p-3 bg-blue-50 rounded-xl">
+              <Clock className="w-4 h-4 text-blue-500 shrink-0" />
+              <p className="text-blue-600 text-xs font-medium">Enter this number on <span className="font-bold">{order.service}</span>, then tap Check SMS below</p>
+            </div>
+            {timeLeft <= 180 && timeLeft > 0 && (
+              <div className="flex items-center gap-2 mt-2 p-3 bg-red-50 rounded-xl border border-red-100">
+                <span className="text-red-500 text-lg">⚠️</span>
+                <p className="text-red-600 text-xs font-bold">Number expires in {formatTime(timeLeft)}! Auto-refund if unused.</p>
               </div>
-            ) : (
-              <div className="p-5">
-                <div className="bg-blue-50 rounded-xl p-4 text-center">
-                  <p className="text-blue-600 text-sm font-semibold">Waiting for SMS...</p>
-                  <p className="text-blue-400 text-xs mt-1">Use this number on {order.service} then click Check SMS</p>
-                </div>
+            )}
+            {timeLeft <= 60 && timeLeft > 0 && (
+              <div className="flex items-center gap-2 mt-2 p-3 bg-red-100 rounded-xl border border-red-200 animate-pulse">
+                <span className="text-red-600 text-lg">🚨</span>
+                <p className="text-red-700 text-xs font-black">Less than 1 minute left! Cancel now for instant refund.</p>
               </div>
             )}
           </div>
 
-          {/* Messages */}
-          {error && <div className="flex gap-2 p-3 bg-red-50 rounded-xl border border-red-100"><span className="text-red-500 text-sm">{error}</span></div>}
-          {success && <div className="flex gap-2 p-3 bg-green-50 rounded-xl border border-green-100"><span className="text-green-700 text-sm">{success}</span></div>}
+          {/* SMS result */}
+          {order.sms ? (
+            <div className="bg-white rounded-2xl shadow-md border border-green-100 p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <CheckCircle className="w-5 h-5 text-green-500" />
+                <p className="text-sm font-bold text-green-700">OTP Received!</p>
+              </div>
+              <div className="flex items-center justify-between bg-green-50 rounded-xl px-4 py-4 border border-green-100">
+                <span className="text-3xl font-black text-green-700 tracking-widest">{order.sms}</span>
+                <button onClick={() => copyText(order.sms!, 'sms')}
+                  className="w-9 h-9 rounded-xl bg-green-100 flex items-center justify-center active:scale-95">
+                  {copiedSms
+                    ? <CheckCircle className="w-5 h-5 text-green-600" />
+                    : <Copy className="w-5 h-5 text-green-600" />}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-5">
+              <div className="flex flex-col items-center py-4 gap-3">
+                <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
+                  <RefreshCw className="w-6 h-6 text-blue-400" />
+                </div>
+                <p className="text-gray-500 text-sm text-center">No SMS received yet.<br/>After entering the number, tap Check SMS.</p>
+              </div>
+            </div>
+          )}
 
-          {/* Action Buttons */}
+          {/* Alerts */}
+          {error && (
+            <div className="flex items-center gap-2 p-3.5 bg-red-50 rounded-xl border border-red-100">
+              <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+              <span className="text-red-600 text-sm">{error}</span>
+            </div>
+          )}
+          {success && !order.sms && (
+            <div className="flex items-center gap-2 p-3.5 bg-green-50 rounded-xl border border-green-100">
+              <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
+              <span className="text-green-700 text-sm">{success}</span>
+            </div>
+          )}
+
+          {/* Buttons */}
           <button onClick={() => handleCheckSMS()} disabled={checkingOrder}
-            className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-black rounded-2xl flex items-center justify-center gap-2">
+            className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-blue-200 transition-all active:scale-95">
             <RefreshCw className={`w-5 h-5 ${checkingOrder ? 'animate-spin' : ''}`} />
-            {checkingOrder ? 'Checking...' : 'Check SMS'}
+            {checkingOrder ? 'Checking for SMS...' : 'Check SMS'}
           </button>
+
           <button onClick={handleCancel}
-            className="w-full py-4 bg-red-50 hover:bg-red-100 text-red-600 font-black rounded-2xl flex items-center justify-center gap-2 border border-red-100">
-            <X className="w-5 h-5" />
-            Cancel Order
+            className="w-full py-3.5 bg-white hover:bg-red-50 text-red-500 font-semibold rounded-2xl flex items-center justify-center gap-2 border border-red-100 transition-all active:scale-95">
+            <X className="w-4 h-4" />
+            Cancel & Refund
           </button>
+
         </div>
       </div>
     );
   }
+// ── Service Picker View ───────────────────────────────────────────
+  const categories = ['All', ...Object.keys(grouped)];
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
       {/* Header */}
-      <div className="bg-gradient-to-br from-blue-700 to-blue-900 px-4 pt-10 pb-20">
+      <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 px-4 pt-10 pb-20">
         <div className="max-w-md mx-auto">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-white text-2xl font-black">Virtual SMS</h1>
-              <p className="text-blue-200 text-sm">Receive OTPs from 200+ services</p>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">
+              <Phone className="w-5 h-5 text-white" />
             </div>
-            <span className="bg-white/20 text-white text-xs font-black px-3 py-1 rounded-full">5SIM</span>
+            <div>
+              <h1 className="text-white text-xl font-black leading-tight">Virtual Numbers</h1>
+              <p className="text-blue-200 text-xs font-medium">Instant OTP · No SIM needed</p>
+            </div>
           </div>
-
-          {/* Country Selector */}
-          <div className="relative">
-            <button onClick={() => setCountryOpen(o => !o)}
-              className="w-full flex items-center gap-3 bg-white/10 border border-white/20 rounded-2xl px-4 py-3">
-              <span className="text-2xl">{selectedCountry.flag}</span>
-              <span className="text-white font-semibold flex-1 text-left">{selectedCountry.name}</span>
-              <ChevronDown className="w-4 h-4 text-white/70" />
-            </button>
-            {countryOpen && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 max-h-60 overflow-y-auto">
-                {COUNTRY_LIST.map(c => (
-                  <button key={c.code} onClick={() => { setSelectedCountry(c); setCountryOpen(false); }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${selectedCountry.code === c.code ? 'bg-blue-50' : ''}`}>
-                    <span className="text-xl">{c.flag}</span>
-                    <span className="text-sm font-medium text-gray-700">{c.name}</span>
-                  </button>
-                ))}
-              </div>
-            )}
+          <div className="flex gap-4 mt-4">
+            <div className="bg-white/10 rounded-2xl px-4 py-2.5 flex-1 text-center">
+              <p className="text-white font-black text-lg">30+</p>
+              <p className="text-blue-200 text-xs">Countries</p>
+            </div>
+            <div className="bg-white/10 rounded-2xl px-4 py-2.5 flex-1 text-center">
+              <p className="text-white font-black text-lg">500K+</p>
+              <p className="text-blue-200 text-xs">Numbers</p>
+            </div>
+            <div className="bg-white/10 rounded-2xl px-4 py-2.5 flex-1 text-center">
+              <p className="text-white font-black text-lg">Instant</p>
+              <p className="text-blue-200 text-xs">Delivery</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-md mx-auto px-4 -mt-12 space-y-4">
-        {/* Search + Category */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-4 border-b border-gray-100">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input value={search} onChange={e => setSearch(e.target.value)}
-                placeholder="Search service (WhatsApp, Google...)"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-100 text-sm outline-none focus:border-blue-500" />
-            </div>
-          </div>
+      <div className="max-w-md mx-auto px-4 -mt-14 space-y-3">
 
-          {/* Category Tabs */}
-          <div className="flex overflow-x-auto border-b border-gray-100">
-            {CATEGORIES.map(cat => (
-              <button key={cat} onClick={() => setActiveCategory(cat)}
-                className={`flex-shrink-0 px-4 py-2.5 text-xs font-bold transition-all border-b-2 ${activeCategory === cat ? 'text-blue-600 border-blue-600' : 'text-gray-400 border-transparent'}`}>
-                {cat}
-              </button>
-            ))}
-          </div>
-{/* Services List */}
-          <div className="max-h-96 overflow-y-auto">
-            {loadingServices ? (
-              <div className="flex items-center justify-center py-12">
-                <span className="w-8 h-8 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin" />
+        <CountryDropdown countries={COUNTRY_LIST} selected={selectedCountry} onChange={(c) => setSelectedCountry(c)} />
+
+        {/* Search */}
+        <div className="flex items-center gap-2 bg-white rounded-2xl shadow-md border border-gray-100 px-4 py-3">
+          <Search className="w-4 h-4 text-gray-400 shrink-0" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search service (WhatsApp, Telegram...)"
+            className="flex-1 text-sm outline-none placeholder:text-gray-400"
+          />
+        </div>
+
+        {/* Trust bar */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-3 py-3">
+          <div className="grid grid-cols-4 gap-1">
+            {[
+              { icon: '🔒', title: 'Secure', sub: 'Data protected' },
+              { icon: '⚡', title: 'Instant', sub: 'Get numbers fast' },
+              { icon: '🌍', title: '30+ Countries', sub: 'Worldwide' },
+              { icon: '🎧', title: '24/7 Support', sub: 'Always here' },
+            ].map((item) => (
+              <div key={item.title} className="flex flex-col items-center text-center gap-0.5">
+                <span className="text-base">{item.icon}</span>
+                <p className="text-[9px] font-black text-gray-700 leading-tight">{item.title}</p>
+                <p className="text-[8px] text-gray-400 leading-tight">{item.sub}</p>
               </div>
-            ) : Object.keys(filteredGrouped).length === 0 ? (
-              <div className="text-center py-12 text-gray-400 text-sm">No services found</div>
-            ) : (
-              Object.entries(filteredGrouped).map(([cat, svcs]) => (
-                <div key={cat}>
-                  <div className="px-4 py-2 bg-gray-50 border-b border-gray-100">
-                    <span className="text-xs font-black text-gray-400 uppercase tracking-wider">{cat}</span>
-                  </div>
-                  {svcs.map(svc => (
-                    <button key={svc.slug} onClick={() => setSelectedService(svc)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 border-b border-gray-50 transition-all ${selectedService?.slug === svc.slug ? 'bg-blue-50' : 'hover:bg-gray-50'}`}>
-                      <LogoBubble slug={svc.slug} name={svc.name} />
-                      <div className="flex-1 text-left">
-                        <p className="text-sm font-bold text-gray-800">{svc.name}</p>
-                        <p className="text-xs text-gray-400">
-                          {svc.count > 0 ? `${svc.count} available` : 'Sold out'}
-                          {svc.success_rate && ` • ${svc.success_rate}% success`}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-black text-blue-600">₦{svc.price_ngn}</p>
-                        {!svc.available || svc.count === 0
-                          ? <span className="text-xs bg-red-50 text-red-500 px-2 py-0.5 rounded-full">Sold Out</span>
-                          : svc.count < 10
-                          ? <span className="text-xs bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded-full">Limited</span>
-                          : <span className="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">Available</span>
-                        }
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              ))
-            )}
+            ))}
           </div>
         </div>
 
-        {/* Selected Service */}
-        {selectedService && (
-          <div className="bg-blue-50 rounded-2xl p-4 flex items-center gap-3 border border-blue-100">
-            <LogoBubble slug={selectedService.slug} name={selectedService.name} />
-            <div className="flex-1">
-              <p className="font-bold text-blue-800">{selectedService.name}</p>
-              <p className="text-xs text-blue-500">{selectedCountry.flag} {selectedCountry.name}</p>
-            </div>
-            <span className="text-xl font-black text-blue-700">₦{selectedService.price_ngn}</span>
+        {/* Category tabs */}
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide" style={{scrollbarWidth:'none',msOverflowStyle:'none'}}>
+          {categories.map((cat) => (
+            <button key={cat} onClick={() => setActiveCategory(cat)}
+              className={`shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95 ${
+                activeCategory === cat
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                  : 'bg-white text-gray-500 border border-gray-200 hover:border-blue-200 hover:text-blue-500'
+              }`}>
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Alerts */}
+        {error && (
+          <div className="flex items-center gap-2 p-3.5 bg-red-50 rounded-xl border border-red-100">
+            <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+            <span className="text-red-600 text-sm">{error}</span>
           </div>
         )}
 
-        {error && <div className="flex gap-2 p-3 bg-red-50 rounded-xl border border-red-100"><span className="text-red-600 text-sm">{error}</span></div>}
-        {success && <div className="flex gap-2 p-3 bg-green-50 rounded-xl border border-green-100"><span className="text-green-700 text-sm">{success}</span></div>}
-
-        <button onClick={handleBuyNumber} disabled={loading || !selectedService || !selectedService?.available}
-          className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-black rounded-2xl flex items-center justify-center gap-2 text-lg">
-          {loading
-            ? <><span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />Getting Number...</>
-            : selectedService ? `Get ${selectedService.name} Number — ₦${selectedService.price_ngn}` : 'Select a Service'
-          }
-        </button>
+        {/* Service list */}
+        {loadingServices ? (
+          <div className="flex flex-col items-center py-10 gap-3">
+            <RefreshCw className="w-6 h-6 text-blue-400 animate-spin" />
+            <p className="text-gray-400 text-sm">Loading services...</p>
+          </div>
+        ) : Object.keys(filteredGrouped).length === 0 ? (
+          <div className="flex flex-col items-center py-10 gap-2">
+            <p className="text-gray-400 text-sm text-center">No services found.</p>
+          </div>
+        ) : (
+          Object.entries(filteredGrouped).map(([cat, svcs]) => {
+            const available = svcs.filter(s => s.available && s.count > 0);
+            const outOfStock = svcs.filter(s => !s.available || s.count === 0);
+            const sorted = [...available, ...outOfStock];
+            return (
+            <div key={cat} className="space-y-2">
+              <div className="flex items-center justify-between px-1">
+                <p className="text-sm font-black text-gray-900">{cat}</p>
+                <span className="text-xs text-blue-600 font-semibold">{available.length} available</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {sorted.map((s) => {
+                  const isSelected = selectedService?.slug === s.slug;
+                  const isOut = !s.available || s.count === 0;
+                  return (
+                    <button key={s.slug} disabled={isOut}
+                      onClick={() => setSelectedService(s)}
+                      className={`relative flex flex-col items-start gap-2 p-3 rounded-2xl border transition-all text-left ${
+                        isOut
+                          ? 'opacity-40 cursor-not-allowed bg-gray-50 border-gray-100'
+                          : isSelected
+                            ? 'bg-blue-50 border-blue-300 shadow-md shadow-blue-100'
+                            : 'bg-white border-gray-100 shadow-sm active:scale-95'
+                      }`}>
+                      {isSelected && (
+                        <div className="absolute top-2 right-2">
+                          <CheckCircle className="w-4 h-4 text-blue-500" />
+                        </div>
+                      )}
+                      <LogoBubble slug={s.slug} name={s.name} />
+                      <div className="w-full">
+                        <p className={`text-xs font-black leading-tight ${isSelected ? 'text-blue-700' : 'text-gray-900'}`}>
+                          {s.name}
+                        </p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">
+                          {isOut ? 'Out of stock' : `${s.count.toLocaleString()} available`}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-between w-full">
+                        {isOut ? (
+                          <span className="text-xs text-gray-300 font-medium">–</span>
+                        ) : (
+                          <span className={`text-sm font-black ${isSelected ? 'text-blue-600' : 'text-green-600'}`}>
+                            ₦{s.price_ngn.toLocaleString()}
+                          </span>
+                        )}
+                        {!isOut && (
+                          <span className="flex items-center gap-0.5 text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">
+                            ⚡ Instant
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            );
+          })
+        )}
       </div>
+
+      {/* Sticky buy bar */}
+      {selectedService && (
+        <div className="fixed bottom-0 left-0 right-0 z-30">
+          <div className="max-w-md mx-auto bg-white border-t border-gray-100 px-4 py-3 shadow-2xl">
+            <div className="flex items-center gap-3">
+              <LogoBubble slug={selectedService.slug} name={selectedService.name} />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-gray-400 font-medium">Ready to activate</p>
+                <p className="text-sm font-black text-gray-900 truncate">{selectedService.name}</p>
+              </div>
+              <div className="text-right mr-1">
+                <p className="text-xs text-gray-400">Price</p>
+                <p className="text-sm font-black text-blue-600">₦{selectedService.price_ngn}</p>
+              </div>
+              <button onClick={handleBuyNumber} disabled={loading}
+                className="px-5 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white text-sm font-black rounded-2xl flex items-center gap-2 shadow-lg shadow-blue-200 active:scale-95 transition-all shrink-0">
+                {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : 'Get Number'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
