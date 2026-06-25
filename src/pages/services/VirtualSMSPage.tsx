@@ -1,11 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
 import BackButton from '../../components/ui/BackButton';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
 import { Copy, CheckCircle, RefreshCw, X, Search, ChevronDown, Phone, Clock, AlertTriangle } from 'lucide-react';
 import CountryDropdown from '../../components/CountryDropdown';
 import { saveState, loadState, clearState } from '../../lib/sessionState';
-import BackButton from '../../components/ui/BackButton';
 
 interface Country { code: string; name: string; flag: string; }
 interface Service { slug: string; name: string; logo: string; color: string; category: string; price_ngn: number; available: boolean; count: number; success_rate: number | null; }
@@ -88,7 +87,6 @@ const LogoBubble = ({ slug, name }: { slug: string; name: string }) => {
   const color = SERVICE_COLORS[slug] || SERVICE_COLORS[key] || '#6366F1';
   const isLight = ['#FFFC00', '#F3BA2F', '#FF9900'].includes(color);
   return (
-      <BackButton />
     <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
       style={{ background: color, boxShadow: `0 4px 12px ${color}44` }}>
       {logoUrl
@@ -370,6 +368,7 @@ export default function VirtualSMSPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
+      <BackButton />
       {/* Header */}
       <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 px-4 pt-10 pb-20">
         <div className="max-w-md mx-auto">

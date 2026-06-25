@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import BackButton from '../../components/ui/BackButton';
+import { useState } from 'react';
 import { Phone, AlertCircle, CheckCircle2, TrendingUp } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
@@ -75,8 +75,8 @@ export default function AirtimeToCashPage() {
   };
 
   return (
-      <BackButton />
     <div className="min-h-screen bg-gray-50 pb-24">
+      <BackButton />
       <div className="max-w-md mx-auto px-4 py-8">
 
         {/* Header */}

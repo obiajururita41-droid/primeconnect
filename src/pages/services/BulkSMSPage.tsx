@@ -1,7 +1,6 @@
+import BackButton from '../../components/ui/BackButton';
 import { useState, useEffect } from 'react';
-import BackButton from '../../components/ui/BackButton';
 import { saveState, loadState, clearState } from '../../lib/sessionState';
-import BackButton from '../../components/ui/BackButton';
 import { MessageSquare, AlertCircle, CheckCircle2, Plus, X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
@@ -121,8 +120,8 @@ export default function BulkSMSPage() {
   };
 
   return (
-      <BackButton />
     <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <BackButton />
       <div className="max-w-md mx-auto">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Bulk SMS</h1>
