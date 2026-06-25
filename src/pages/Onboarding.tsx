@@ -44,7 +44,6 @@ export default function Onboarding() {
       <div className="w-full flex justify-end pt-4">
         <button onClick={finish} className="text-white/70 text-sm font-medium">Skip</button>
       </div>
-
       <div className="flex flex-col items-center text-center gap-6 flex-1 justify-center">
         <div className="bg-white/20 rounded-full p-8 mb-4">
           {slide.icon}
@@ -52,7 +51,6 @@ export default function Onboarding() {
         <h1 className="text-3xl font-bold text-white">{slide.title}</h1>
         <p className="text-white/80 text-lg max-w-xs leading-relaxed">{slide.description}</p>
       </div>
-
       <div className="flex gap-2 mb-8">
         {slides.map((_, i) => (
           <div
@@ -62,7 +60,6 @@ export default function Onboarding() {
           />
         ))}
       </div>
-
       <button
         onClick={next}
         className="w-full bg-white text-blue-700 font-bold py-4 rounded-2xl flex items-center justify-center gap-2 text-lg mb-4"
