@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Shield, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Zap, Shield, CheckCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const Register = () => {
@@ -14,12 +14,7 @@ const Register = () => {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [form, setForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: '',
-    referralCode: '',
+    name: '', email: '', phone: '', password: '', confirmPassword: '', referralCode: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,100 +23,80 @@ const Register = () => {
   };
 
   const handleNext = () => {
-    if (!form.name || !form.email || !form.phone) {
-      setError('Please fill in all required fields.');
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      setError('Enter a valid email address.');
-      return;
-    }
+    if (!form.name || !form.email || !form.phone) return setError('Please fill in all required fields.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return setError('Enter a valid email address.');
     setStep(2);
   };
 
   const handleSubmit = async () => {
-    if (!agreedToTerms) {
-      setError('You must agree to our Terms & Conditions to continue.');
-      return;
-    }
-    if (!form.password || !form.confirmPassword) {
-      setError('Please fill in all fields.');
-      return;
-    }
-    if (form.password.length < 6) {
-      setError('Password must be at least 6 characters.');
-      return;
-    }
-    if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
+    if (!agreedToTerms) return setError('You must agree to our Terms & Conditions.');
+    if (!form.password || !form.confirmPassword) return setError('Please fill in all fields.');
+    if (form.password.length < 6) return setError('Password must be at least 6 characters.');
+    if (form.password !== form.confirmPassword) return setError('Passwords do not match.');
     setIsLoading(true);
     const { error: regError } = await register(form.email, form.password, form.name, form.phone, form.referralCode || undefined);
     setIsLoading(false);
-    if (!regError) {
-      navigate('/dashboard');
-    } else {
-      setError(regError?.message || 'Registration failed. Please try again.');
-    }
+    if (!regError) navigate('/dashboard');
+    else setError(regError?.message || 'Registration failed. Please try again.');
   };
 
+  const inputClass = "w-full border-2 border-gray-100 bg-gray-50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-all";
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-24">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-2">
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <span className="text-xl font-bold">
-              <span className="text-blue-600">Prime</span>Connect
-            </span>
+    <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #1d4ed8 50%, #2563eb 100%)' }}>
+      
+      <div className="flex-1 flex flex-col items-center justify-center px-6 pt-12 pb-8">
+        
+        {/* Logo */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-3 shadow-lg">
+            <Zap size={32} className="text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
-          <p className="text-gray-500 text-sm mt-1">Enjoy fast, seamless transactions</p>
+          <h1 className="text-2xl font-black text-white">
+            <span className="text-blue-200">Prime</span>Connect
+          </h1>
+          <p className="text-blue-200 text-xs mt-1">Create your free account</p>
         </div>
 
-        <div className="flex items-center justify-center gap-3 mb-8">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-400'}`}>1</div>
-          <div className={`h-1 w-12 rounded ${step === 2 ? 'bg-blue-600' : 'bg-gray-200'}`} />
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${step === 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-400'}`}>2</div>
+        {/* Step indicators */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${step >= 1 ? 'bg-white text-blue-700' : 'bg-white/20 text-white'}`}>1</div>
+          <div className={`h-1 w-12 rounded transition-all ${step === 2 ? 'bg-white' : 'bg-white/30'}`} />
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${step === 2 ? 'bg-white text-blue-700' : 'bg-white/20 text-white'}`}>2</div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        {/* Card */}
+        <div className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl">
+          
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg text-red-600 text-sm">
-              {error}
-            </div>
+            <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm">{error}</div>
           )}
 
           {step === 1 && (
             <div className="space-y-4">
-              <h2 className="text-base font-semibold text-gray-700 mb-4">Personal Information</h2>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name <span className="text-red-500">*</span></label>
-                <input name="name" type="text" placeholder="John Doe" value={form.name} onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                <h2 className="text-lg font-bold text-gray-900">Personal Information</h2>
+                <p className="text-gray-400 text-xs">Step 1 of 2</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email Address <span className="text-red-500">*</span></label>
-                <input name="email" type="email" placeholder="you@example.com" value={form.email} onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Full Name <span className="text-red-500">*</span></label>
+                <input name="name" type="text" placeholder="John Doe" value={form.name} onChange={handleChange} className={inputClass} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number <span className="text-red-500">*</span></label>
-                <input name="phone" type="tel" placeholder="08012345678" value={form.phone} onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email Address <span className="text-red-500">*</span></label>
+                <input name="email" type="email" placeholder="you@example.com" value={form.email} onChange={handleChange} className={inputClass} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Referral Code <span className="text-gray-400 font-normal">(optional)</span></label>
-                <input name="referralCode" type="text" placeholder="e.g. PRIME001" value={form.referralCode} onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Phone Number <span className="text-red-500">*</span></label>
+                <input name="phone" type="tel" placeholder="08012345678" value={form.phone} onChange={handleChange} className={inputClass} />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Referral Code <span className="text-gray-400 font-normal">(optional)</span></label>
+                <input name="referralCode" type="text" placeholder="e.g. PRIME001" value={form.referralCode} onChange={handleChange} className={inputClass} />
               </div>
               <button onClick={handleNext}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors mt-2">
+                className="w-full text-white font-bold py-3.5 rounded-xl mt-2"
+                style={{ background: 'linear-gradient(135deg, #1d4ed8, #2563eb)', boxShadow: '0 4px 15px rgba(37,99,235,0.4)' }}>
                 Continue →
               </button>
             </div>
@@ -129,15 +104,17 @@ const Register = () => {
 
           {step === 2 && (
             <div className="space-y-4">
-              <h2 className="text-base font-semibold text-gray-700 mb-4">Set Your Password</h2>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Password <span className="text-red-500">*</span></label>
+                <h2 className="text-lg font-bold text-gray-900">Set Password</h2>
+                <p className="text-gray-400 text-xs">Step 2 of 2</p>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Password <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <input name="password" type={showPassword ? 'text' : 'password'} placeholder="Min. 6 characters"
-                    value={form.password} onChange={handleChange}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    value={form.password} onChange={handleChange} className={inputClass + ' pr-12'} />
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600">
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
@@ -146,9 +123,7 @@ const Register = () => {
                     {[...Array(4)].map((_, i) => (
                       <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${
                         form.password.length >= (i + 1) * 2
-                          ? form.password.length < 6 ? 'bg-red-400'
-                          : form.password.length < 8 ? 'bg-yellow-400'
-                          : 'bg-green-500'
+                          ? form.password.length < 6 ? 'bg-red-400' : form.password.length < 8 ? 'bg-yellow-400' : 'bg-green-500'
                           : 'bg-gray-200'
                       }`} />
                     ))}
@@ -156,13 +131,12 @@ const Register = () => {
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Confirm Password <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <input name="confirmPassword" type={showConfirmPassword ? 'text' : 'password'} placeholder="Repeat your password"
-                    value={form.confirmPassword} onChange={handleChange}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    value={form.confirmPassword} onChange={handleChange} className={inputClass + ' pr-12'} />
                   <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600">
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                     {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
@@ -173,33 +147,29 @@ const Register = () => {
                 )}
               </div>
 
-              <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+              <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
                 <div className="flex items-start gap-3">
                   <button type="button" onClick={() => setAgreedToTerms(!agreedToTerms)}
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
-                      agreedToTerms ? 'bg-blue-600 border-blue-600' : 'border-gray-300 bg-white'
-                    }`}>
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${agreedToTerms ? 'bg-blue-600 border-blue-600' : 'border-gray-300 bg-white'}`}>
                     {agreedToTerms && <CheckCircle className="w-3 h-3 text-white" />}
                   </button>
                   <p className="text-xs text-gray-600 leading-relaxed">
                     I agree to PrimeConnect's{' '}
-                    <button type="button" onClick={() => setShowTerms(true)} className="text-blue-600 font-semibold underline">
-                      Terms & Conditions
-                    </button>{' '}and{' '}
-                    <button type="button" onClick={() => setShowTerms(true)} className="text-blue-600 font-semibold underline">
-                      Privacy Policy
-                    </button>
+                    <button type="button" onClick={() => setShowTerms(true)} className="text-blue-600 font-semibold underline">Terms & Conditions</button>
+                    {' '}and{' '}
+                    <button type="button" onClick={() => setShowTerms(true)} className="text-blue-600 font-semibold underline">Privacy Policy</button>
                   </p>
                 </div>
               </div>
 
-              <div className="flex gap-3 mt-2">
+              <div className="flex gap-3">
                 <button onClick={() => setStep(1)}
-                  className="flex-1 border border-gray-200 text-gray-600 font-semibold py-3 rounded-xl hover:bg-gray-50 transition-colors">
+                  className="flex-1 border-2 border-gray-200 text-gray-600 font-bold py-3 rounded-xl">
                   ← Back
                 </button>
                 <button onClick={handleSubmit} disabled={isLoading || !agreedToTerms}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-colors">
+                  className="flex-1 text-white font-bold py-3 rounded-xl disabled:opacity-50"
+                  style={{ background: 'linear-gradient(135deg, #1d4ed8, #2563eb)' }}>
                   {isLoading ? 'Creating...' : 'Create Account'}
                 </button>
               </div>
@@ -207,10 +177,17 @@ const Register = () => {
           )}
         </div>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-sm text-blue-200 mt-6">
           Already have an account?{' '}
-          <Link to="/login" className="text-blue-600 font-semibold hover:underline">Sign in</Link>
+          <Link to="/login" className="text-white font-bold">Sign in</Link>
         </p>
+      </div>
+
+      {/* Bottom badges */}
+      <div className="flex justify-center gap-6 pb-8">
+        <div className="flex items-center gap-1.5 text-blue-200 text-xs"><span>🔒</span> 100% Secure</div>
+        <div className="flex items-center gap-1.5 text-blue-200 text-xs"><span>⚡</span> Instant Setup</div>
+        <div className="flex items-center gap-1.5 text-blue-200 text-xs"><span>🇳🇬</span> Made in Nigeria</div>
       </div>
 
       {showTerms && (
@@ -221,45 +198,28 @@ const Register = () => {
                 <Shield className="w-5 h-5 text-blue-600" />
                 <h3 className="font-bold text-gray-900">Terms & Conditions</h3>
               </div>
-              <button onClick={() => setShowTerms(false)} className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 font-bold">✕</button>
+              <button onClick={() => setShowTerms(false)} className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center font-bold">✕</button>
             </div>
             <div className="overflow-y-auto p-5 space-y-4 text-sm text-gray-600 flex-1">
-              <div>
-                <p className="font-bold text-gray-900 mb-1">1. Acceptance of Terms</p>
-                <p>By creating an account on PrimeConnect, you agree to be bound by these Terms and Conditions. If you do not agree, please do not register.</p>
-              </div>
-              <div>
-                <p className="font-bold text-gray-900 mb-1">2. Eligibility</p>
-                <p>You must be at least 18 years old and a resident of Nigeria to use PrimeConnect services.</p>
-              </div>
-              <div>
-                <p className="font-bold text-gray-900 mb-1">3. Account Security</p>
-                <p>You are responsible for maintaining the confidentiality of your account credentials. PrimeConnect will never ask for your password.</p>
-              </div>
-              <div>
-                <p className="font-bold text-gray-900 mb-1">4. Wallet & Transactions</p>
-                <p>All wallet transactions are final. PrimeConnect is not liable for losses due to incorrect details provided during transactions. Ensure all details are correct before confirming.</p>
-              </div>
-              <div>
-                <p className="font-bold text-gray-900 mb-1">5. Prohibited Activities</p>
-                <p>You may not use PrimeConnect for fraudulent transactions, money laundering, or any illegal activities. Violations will result in immediate account suspension and reporting to authorities.</p>
-              </div>
-              <div>
-                <p className="font-bold text-gray-900 mb-1">6. Referral Program</p>
-                <p>Referral bonuses are credited after the referred user funds their wallet with the minimum required amount. Abuse of the referral program will result in disqualification.</p>
-              </div>
-              <div>
-                <p className="font-bold text-gray-900 mb-1">7. Privacy Policy</p>
-                <p>We collect your name, email, and phone number to provide our services. Your data is never sold to third parties. We use industry-standard encryption to protect your information.</p>
-              </div>
-              <div>
-                <p className="font-bold text-gray-900 mb-1">8. Support</p>
-                <p>For support, contact us at support.primeconnect@gmail.com or call +234 814 838 5682. We respond within 24 hours on business days.</p>
-              </div>
+              {[
+                { t: '1. Acceptance', b: 'By creating an account on PrimeConnect, you agree to be bound by these Terms and Conditions.' },
+                { t: '2. Eligibility', b: 'You must be at least 18 years old and a resident of Nigeria to use PrimeConnect services.' },
+                { t: '3. Account Security', b: 'You are responsible for maintaining the confidentiality of your account credentials.' },
+                { t: '4. Transactions', b: 'All wallet transactions are final. Ensure all details are correct before confirming.' },
+                { t: '5. Prohibited Activities', b: 'You may not use PrimeConnect for fraudulent transactions or illegal activities.' },
+                { t: '6. Referral Program', b: 'Referral bonuses are credited after the referred user funds their wallet.' },
+                { t: '7. Privacy', b: 'We collect your name, email, and phone number to provide our services. Your data is never sold.' },
+                { t: '8. Support', b: 'Contact us at support.primeconnect@gmail.com or +234 814 838 5682.' },
+              ].map(item => (
+                <div key={item.t} className="border-b border-gray-50 pb-3 last:border-0">
+                  <p className="font-bold text-gray-900 mb-1">{item.t}</p>
+                  <p>{item.b}</p>
+                </div>
+              ))}
             </div>
-            <div className="p-4 border-t border-gray-100 shrink-0">
+            <div className="p-4 border-t shrink-0">
               <button onClick={() => { setAgreedToTerms(true); setShowTerms(false); }}
-                className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-colors">
+                className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl">
                 I Agree & Continue
               </button>
             </div>
