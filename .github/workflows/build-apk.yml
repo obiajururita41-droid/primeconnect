@@ -11,10 +11,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
           cache: gradle
 
@@ -42,19 +42,9 @@ jobs:
         run: chmod +x android/gradlew
 
       - name: Build APK
-        run: |
-          cd android && ./gradlew assembleDebug --no-daemon 2>&1 | tee build.log
-          exit ${PIPESTATUS[0]}
-
-      - name: Upload build log
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-log
-          path: android/build.log
+        run: cd android && ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
-        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
