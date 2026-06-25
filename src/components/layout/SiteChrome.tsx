@@ -2,10 +2,19 @@ import { useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
 
-const HIDE_CHROME_ROUTES = ['/dashboard', '/transactions', '/withdraw', '/referral', '/settings', '/transfer', '/notifications', '/scan'];
+const HIDE_CHROME_ROUTES = [
+  '/dashboard', '/transactions', '/withdraw', '/referral',
+  '/settings', '/transfer', '/notifications', '/scan',
+  '/onboarding', '/send', '/ai-hub', '/payment'
+];
+
+const isCapacitor = window.location.protocol === 'capacitor:' || 
+                    window.location.hostname === 'localhost' && 
+                    navigator.userAgent.includes('Android');
 
 export function SiteNavbar() {
   const location = useLocation();
+  if (isCapacitor) return null;
   if (location.pathname.startsWith('/admin')) return null;
   if (HIDE_CHROME_ROUTES.some(route => location.pathname.startsWith(route))) return null;
   return <Navbar />;
@@ -13,6 +22,7 @@ export function SiteNavbar() {
 
 export function SiteFooter() {
   const location = useLocation();
+  if (isCapacitor) return null;
   if (location.pathname.startsWith('/admin')) return null;
   if (HIDE_CHROME_ROUTES.some(route => location.pathname.startsWith(route))) return null;
   return <Footer />;
