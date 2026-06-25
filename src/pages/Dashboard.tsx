@@ -104,18 +104,14 @@ const Dashboard = () => {
   };
 
   const quickActions = [
-    { label: 'Airtime',      icon: <Phone className="w-6 h-6" />,         bg: 'bg-blue-600',    path: '/services/airtime' },
-    { label: 'Data',         icon: <Wifi className="w-6 h-6" />,          bg: 'bg-blue-500',    path: '/services/data' },
-    { label: 'Virtual SMS',  icon: <MessageSquare className="w-6 h-6" />, bg: 'bg-indigo-600',  path: '/services/virtual-sms' },
-    { label: 'Bulk SMS',     icon: <Send className="w-6 h-6" />,          bg: 'bg-indigo-500',  path: '/services/bulk-sms' },
-    { label: 'Fund Wallet',  icon: <Plus className="w-6 h-6" />,          bg: 'bg-emerald-500', path: null },
-    { label: 'Withdraw',     icon: <ArrowUpRight className="w-6 h-6" />,  bg: 'bg-orange-500',  path: '/withdrawal' },
-    { label: 'Refer & Earn', icon: <Users className="w-6 h-6" />,         bg: 'bg-pink-500',    path: '/referral' },
-    { label: 'A2 Cash',      icon: <TrendingUp className="w-6 h-6" />,    bg: 'bg-emerald-600', path: '/services/airtime-to-cash' },
-    { label: 'Bet Funding',  icon: <Zap className="w-6 h-6" />,           bg: 'bg-red-500',     path: '/services/betting' },
-    { label: 'TV Sub',       icon: <Tv className="w-6 h-6" />,            bg: 'bg-purple-500',  path: '/services/tv-subscription' },
-    { label: 'Electricity',  icon: <Zap className="w-6 h-6" />,           bg: 'bg-yellow-500',  path: '/services/electricity' },
-    { label: 'Import Calc',  icon: <Package className="w-6 h-6" />,       bg: 'bg-slate-600',   path: '/services/import-calculator' },
+    { label: 'Airtime',      icon: <Phone className="w-6 h-6" />,        path: '/services/airtime' },
+    { label: 'Data',         icon: <Wifi className="w-6 h-6" />,         path: '/services/data' },
+    { label: 'Cable TV',     icon: <Tv className="w-6 h-6" />,           path: '/services/tv-subscription' },
+    { label: 'Electricity',  icon: <Zap className="w-6 h-6" />,          path: '/services/electricity' },
+    { label: 'Transactions', icon: <History className="w-6 h-6" />,      path: '/transactions' },
+    { label: 'Transfer',     icon: <Send className="w-6 h-6" />,         path: '/withdrawal' },
+    { label: 'Withdraw',     icon: <ArrowUpRight className="w-6 h-6" />, path: '/withdrawal' },
+    { label: 'More',         icon: <CreditCard className="w-6 h-6" />,   path: '/services' },
   ];
 
   const firstName = profile?.full_name?.split(' ')?.[0] ?? 'User';
@@ -246,7 +242,7 @@ const Dashboard = () => {
                 <button key={action.label}
                   onClick={() => action.path ? navigate(action.path) : (setShowFund(true), checkVirtualAccount())}
                   className="flex flex-col items-center gap-2 active:scale-90 transition-transform">
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm ${action.bg}`}>
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm bg-blue-50 text-blue-600">
                     {action.icon}
                   </div>
                   <span className="text-[10px] text-gray-500 font-semibold text-center leading-tight">{action.label}</span>
