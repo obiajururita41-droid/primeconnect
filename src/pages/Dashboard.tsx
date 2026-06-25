@@ -246,7 +246,7 @@ const Dashboard = () => {
                 <button key={action.label}
                   onClick={() => action.path ? navigate(action.path) : (setShowFund(true), checkVirtualAccount())}
                   className="flex flex-col items-center gap-2 active:scale-90 transition-transform">
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-md ${action.bg}`}>
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm ${action.bg}`}>
                     {action.icon}
                   </div>
                   <span className="text-[10px] text-gray-500 font-semibold text-center leading-tight">{action.label}</span>
