@@ -24,6 +24,9 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Install dependencies
         run: npm ci
 
@@ -38,9 +41,7 @@ jobs:
         run: chmod +x android/gradlew
 
       - name: Build APK
-        run: cd android && ./gradlew assembleDebug --no-daemon --parallel --stacktrace
-        env:
-          ANDROID_HOME: /usr/local/lib/android/sdk
+        run: cd android && ./gradlew assembleDebug --no-daemon --stacktrace 2>&1
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
