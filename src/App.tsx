@@ -32,6 +32,7 @@ import NotificationsPage from './pages/NotificationsPage';
 import ScanPayPage from './pages/ScanPayPage';
 import PaymentVerifyPage from './pages/PaymentVerifyPage';
 import SendMoneyPage from './pages/SendMoneyPage';
+import Onboarding from './pages/Onboarding';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
       <BrowserRouter>
         <SiteNavbar />
         <Routes>
+          <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
