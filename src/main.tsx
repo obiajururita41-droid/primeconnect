@@ -1,7 +1,11 @@
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.tsx'
+import ErrorBoundary from './ErrorBoundary.tsx'
 
 createRoot(document.getElementById('root')!).render(
-  <div style={{ background: 'red', color: 'white', fontSize: 40, padding: 40 }}>
-    HELLO PRIMECONNECT
-  </div>
+  <StrictMode>
+    <ErrorBoundary><App /></ErrorBoundary>
+  </StrictMode>,
 )
