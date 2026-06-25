@@ -3,6 +3,7 @@ import { CreditCard, Plus, Eye, EyeOff, Snowflake, AlertCircle, CheckCircle2, Re
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
 import { saveState, loadState, clearState } from '../../lib/sessionState';
+import BackButton from '../../components/ui/BackButton';
 
 function generateCard() {
   const num = Array.from({length:4}, () => Math.floor(1000+Math.random()*9000)).join(' ');

@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import BackButton from '../../components/ui/BackButton';
 import { Zap, CheckCircle2, AlertCircle, Copy } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
 import { saveState, loadState, clearState } from '../../lib/sessionState';
+import BackButton from '../../components/ui/BackButton';
 
 const PROVIDERS = [
   { id: 'IKEDC', name: 'Ikeja Electric (IKEDC)' },
@@ -90,6 +92,7 @@ export default function ElectricityPage() {
   }
 
   if (token) return (
+      <BackButton />
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl p-8 text-center max-w-sm w-full shadow-sm border border-gray-100">
         <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">

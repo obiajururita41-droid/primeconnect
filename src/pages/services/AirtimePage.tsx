@@ -3,6 +3,8 @@ import { Phone, AlertCircle, CheckCircle2, Tag, User } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
 import { saveState, loadState, clearState } from '../../lib/sessionState';
+import BackButton from '../../components/ui/BackButton';
+import BackButton from '../../components/ui/BackButton';
 
 const NETWORKS = [
   { id: 'mtn',     name: 'MTN',     bg: 'bg-yellow-400', text: 'text-black',  border: 'border-yellow-400' },
@@ -94,6 +96,7 @@ export default function AirtimePage() {
   };
 
   return (
+      <BackButton />
     <div className="min-h-screen bg-gray-50 pb-24">
 
       {/* Header */}

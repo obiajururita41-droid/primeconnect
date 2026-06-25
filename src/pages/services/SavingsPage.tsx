@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import BackButton from '../../components/ui/BackButton';
 import { PiggyBank, TrendingUp, ArrowDownLeft, ArrowUpRight, AlertCircle, CheckCircle2, Info } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
@@ -68,6 +69,7 @@ export default function SavingsPage() {
   const monthlyEarning = (savingsBalance * interestRate) / 100 / 12;
 
   return (
+      <BackButton />
     <div className="min-h-screen bg-gray-50 pb-24">
       <div className="bg-gradient-to-br from-blue-600 to-blue-700 px-4 pt-12 pb-20">
         <div className="max-w-md mx-auto">
