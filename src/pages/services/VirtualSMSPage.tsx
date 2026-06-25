@@ -228,7 +228,8 @@ export default function VirtualSMSPage() {
     if (!order?.id) return;
     await callFunction('virtual-sms', { action: 'cancel_order', orderId: order.id });
     clearInterval(autoCheckRef.current);
-    setOrder(null); setSuccess('Order cancelled.');
+    await supabase.rpc('credit_wallet', { p_user_id: user?.id, p_amount: order.price, p_reference: 'REFUND-CANCEL-' + order.id });
+    setOrder(null); setSuccess('Order cancelled. ₦' + order.price + ' refunded to your wallet.');
   }
 
   function copyText(text: string, type: 'phone' | 'sms' = 'phone') {
