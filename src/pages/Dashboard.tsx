@@ -322,11 +322,11 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 pb-24">
+    <div className="min-h-screen bg-gray-50 pb-24">
       <div className="max-w-md mx-auto">
 
         {/* Top Bar */}
-        <div className="flex items-center justify-between px-4 pt-8 pb-4 bg-white border-b border-gray-100">
+        <div className="flex items-center justify-between px-4 pt-10 pb-16 bg-gradient-to-br from-blue-700 via-blue-600 to-blue-500">
           <div className="flex items-center gap-3">
             {/* Avatar */}
             <div className="relative">
@@ -338,12 +338,12 @@ const Dashboard = () => {
               <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-400 rounded-full border-2 border-white" />
             </div>
             <div>
-              <p className="font-black text-gray-900 text-sm leading-tight">
+              <p className="font-black text-white text-sm leading-tight">
                 {new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 17 ? "Good afternoon" : "Good evening"}, {firstName} 👋
               </p>
               <div className="flex items-center gap-1 mt-1">
-                <CheckCircle className="w-3 h-3 text-blue-500" />
-                <span className="text-xs text-blue-500 font-semibold">Verified Account</span>
+                <CheckCircle className="w-3 h-3 text-blue-100" />
+                <span className="text-xs text-blue-100 font-semibold">Verified Account</span>
               </div>
             </div>
           </div>
@@ -351,23 +351,23 @@ const Dashboard = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigate('/referral')}
-              className="flex items-center gap-1.5 bg-green-50 border border-green-100 rounded-2xl px-3 py-2"
+              className="flex items-center gap-1.5 bg-white/20 border border-white/10 rounded-2xl px-3 py-2"
             >
-              <Star className="w-3.5 h-3.5 text-green-500" />
-              <span className="text-xs font-black text-green-600">₦{Number(referralEarnings).toLocaleString('en-NG', { minimumFractionDigits: 0 })}</span>
+              <Star className="w-3.5 h-3.5 text-yellow-300" />
+              <span className="text-xs font-black text-white">₦{Number(referralEarnings).toLocaleString('en-NG', { minimumFractionDigits: 0 })}</span>
             </button>
             <button
               onClick={() => navigate('/notifications')}
-              className="relative w-10 h-10 rounded-2xl bg-gray-100 flex items-center justify-center active:scale-95 transition-transform"
+              className="relative w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center active:scale-95 transition-transform"
             >
-              <Bell className="w-4.5 h-4.5 text-gray-700" />
+              <Bell className="w-4.5 h-4.5 text-white" />
               <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-black">3</span>
             </button>
           </div>
         </div>
 
         {/* Wallet Card */}
-        <div className="mx-4 mb-4">
+        <div className="mx-4 mb-4 -mt-12 relative z-10">
           <div className="bg-gradient-to-br from-[#1a56db] via-[#1e40af] to-[#1e3a8a] rounded-3xl p-5 text-white shadow-xl shadow-blue-900/30 relative overflow-hidden">
             <div className="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-white/5" />
             <div className="absolute -left-6 -bottom-8 w-32 h-32 rounded-full bg-white/5" />
