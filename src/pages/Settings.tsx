@@ -175,7 +175,7 @@ export default function Settings() {
             );
           })}
         </div>
-div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-gray-100">
+<div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-gray-100">
           <div className="flex justify-around">
             {[
               { icon: '🔒', label: 'Secure',   sub: 'Encrypted' },
