@@ -29,7 +29,7 @@ export default function Onboarding() {
 
   const finish = () => {
     localStorage.setItem('onboarding_done', 'true');
-    navigate('/', { replace: true });
+    navigate('/login', { replace: true });
   };
 
   const next = () => {
