@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import BottomNav from '../components/layout/BottomNav';
 import { useNavigate } from 'react-router-dom';
 import { Bell, ArrowLeft, CheckCircle, Wallet, Gift, Users, Zap, Info, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -146,6 +147,7 @@ export default function NotificationsPage() {
         </div>
 
       </div>
+          <BottomNav />
     </div>
   );
 }

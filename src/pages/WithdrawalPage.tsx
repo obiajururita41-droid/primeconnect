@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import { ArrowLeft, Building2, Search, CheckCircle, AlertCircle, Loader2, Lock, Send } from 'lucide-react';
+import BottomNav from '../components/layout/BottomNav';
 import { useNavigate } from 'react-router-dom';
 
 interface Bank { code: string; name: string; }
@@ -285,6 +286,7 @@ export default function WithdrawalPage() {
           </div>
         </div>
       )}
+          <BottomNav />
     </div>
   );
 }

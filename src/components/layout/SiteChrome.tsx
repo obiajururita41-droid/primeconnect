@@ -8,9 +8,10 @@ const HIDE_CHROME_ROUTES = [
   '/onboarding', '/send', '/ai-hub', '/payment'
 ];
 
-const isCapacitor = window.location.protocol === 'capacitor:' || 
-                    window.location.hostname === 'localhost' && 
-                    navigator.userAgent.includes('Android');
+const isCapacitor = 
+  window.location.protocol === 'capacitor:' ||
+  (window.location.hostname === 'localhost' && navigator.userAgent.includes('Android')) ||
+  typeof (window as any).Capacitor !== 'undefined';
 
 export function SiteNavbar() {
   const location = useLocation();

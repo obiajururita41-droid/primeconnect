@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import BottomNav from '../components/layout/BottomNav';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Copy, CheckCircle, QrCode, Camera, Share2, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -279,6 +280,7 @@ export default function ScanPayPage() {
           )}
         </div>
       </div>
+          <BottomNav />
     </div>
   );
 }

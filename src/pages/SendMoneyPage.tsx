@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import BottomNav from '../components/layout/BottomNav';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Send, Search, CheckCircle, AlertCircle,
@@ -571,6 +572,7 @@ export default function SendMoneyPage() {
           Continue
         </button>
       </div>
+          <BottomNav />
     </div>
   );
 }

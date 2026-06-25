@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import BottomNav from '../components/layout/BottomNav';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowUpRight, ArrowDownLeft, Search, Wallet, Gift, Phone, Wifi, MessageSquare } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -193,6 +194,7 @@ export default function TransactionHistory() {
           </button>
         </div>
       </div>
+          <BottomNav />
     </div>
   );
 }

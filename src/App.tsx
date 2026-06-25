@@ -36,7 +36,9 @@ import Onboarding from './pages/Onboarding';
 
 function Layout() {
   const location = useLocation();
-  const hideChrome = location.pathname === '/onboarding';
+  const appPaths = ['/dashboard', '/transactions', '/settings', '/notifications', '/scan', '/referral', '/withdrawal', '/send', '/ai-hub', '/services', '/admin', '/payment'];
+  const isAppPage = appPaths.some(p => location.pathname.startsWith(p));
+  const hideChrome = location.pathname === '/onboarding' || isAppPage;
 
   return (
     <>

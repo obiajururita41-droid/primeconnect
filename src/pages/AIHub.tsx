@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import BottomNav from '../components/layout/BottomNav';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -337,6 +338,7 @@ export default function AIHub() {
           ))}
         </div>
       </div>
+          <BottomNav />
     </div>
   );
 }

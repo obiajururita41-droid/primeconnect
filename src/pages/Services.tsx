@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import BottomNav from '../components/layout/BottomNav';
 import { useEffect } from 'react';
 import {
   Smartphone, Wifi, Gift, MessageSquare, Wallet, TrendingUp,
@@ -154,6 +155,7 @@ const Services = () => {
           </div>
         </div>
       </section>
+          <BottomNav />
     </div>
   );
 };

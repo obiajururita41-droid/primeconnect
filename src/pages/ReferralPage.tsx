@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import BottomNav from '../components/layout/BottomNav';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Copy, CheckCircle, Users, Gift, Share2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -177,6 +178,7 @@ export default function ReferralPage() {
           )}
         </div>
       </div>
+          <BottomNav />
     </div>
   );
 }
