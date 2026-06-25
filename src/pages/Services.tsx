@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import {
   Smartphone, Wifi, Gift, MessageSquare, Wallet, TrendingUp,
   ArrowRight, CheckCircle, Zap, Shield, Clock
@@ -64,6 +65,12 @@ const whyUs = [
 ];
 
 const Services = () => {
+  const navigate = useNavigate();
+  const isCapacitor = window.location.hostname === 'localhost';
+  useEffect(() => {
+    if (isCapacitor) navigate('/dashboard', { replace: true });
+  }, []);
+  if (isCapacitor) return null;
   return (
     <div className="pt-16 min-h-screen">
       <section className="bg-gradient-to-br from-blue-600 to-blue-800 text-white py-20">
