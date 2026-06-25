@@ -57,7 +57,7 @@ export default function Settings() {
     return (
       <div className="min-h-screen bg-gray-50 pb-24">
         {/* Header */}
-        <div className="bg-gradient-to-br from-blue-600 to-blue-900 px-4 pt-10 pb-6">
+        <div className="px-4 pt-10 pb-6" style={{background:'linear-gradient(135deg, #1e40af 0%, #1d4ed8 50%, #2563eb 100%)'}}>
           <div className="max-w-md mx-auto flex items-center gap-3">
             <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center">
               <ChevronRight className="w-4 h-4 text-white rotate-180" />
@@ -89,7 +89,7 @@ export default function Settings() {
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
       {/* Profile Header */}
-      <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 px-4 pt-10 pb-20 relative overflow-hidden">
+      <div className="px-4 pt-10 pb-20 relative overflow-hidden" style={{background:'linear-gradient(135deg, #1e40af 0%, #1d4ed8 50%, #2563eb 100%)'}}>
         <div className="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-white/5" />
         <div className="absolute -left-6 -bottom-8 w-32 h-32 rounded-full bg-white/5" />
         <div className="max-w-md mx-auto">
@@ -330,7 +330,7 @@ function ProfileTab({ user, profile, refreshProfile, showToast }: any) {
             type="text"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 bg-gray-50 text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
             placeholder="Enter your full name"
           />
         </div>
@@ -358,7 +358,7 @@ function ProfileTab({ user, profile, refreshProfile, showToast }: any) {
       <button
         onClick={handleSave}
         disabled={saving}
-        className="mt-6 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+        className="mt-6 w-full flex items-center justify-center gap-2 disabled:opacity-60 text-white text-sm font-bold py-3.5 rounded-xl transition-all" style={{background:'linear-gradient(135deg, #1d4ed8, #2563eb)', boxShadow:'0 4px 15px rgba(37,99,235,0.4)'}}
       >
         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
         Save Changes
@@ -474,7 +474,7 @@ function TransferPINSection({ user, showToast }: any) {
       <button
         onClick={handleSetPin}
         disabled={saving}
-        className="mt-6 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+        className="mt-6 w-full flex items-center justify-center gap-2 disabled:opacity-60 text-white text-sm font-bold py-3.5 rounded-xl transition-all" style={{background:'linear-gradient(135deg, #1d4ed8, #2563eb)', boxShadow:'0 4px 15px rgba(37,99,235,0.4)'}}
       >
         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
         {hasPin ? 'Update PIN' : 'Set Transfer PIN'}
@@ -606,7 +606,7 @@ function SecurityTab({ user, profile, refreshProfile, showToast }: any) {
         <button
           onClick={handleChangePassword}
           disabled={saving}
-          className="mt-6 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+          className="mt-6 w-full flex items-center justify-center gap-2 disabled:opacity-60 text-white text-sm font-bold py-3.5 rounded-xl transition-all" style={{background:'linear-gradient(135deg, #1d4ed8, #2563eb)', boxShadow:'0 4px 15px rgba(37,99,235,0.4)'}}
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
           Update Password
@@ -912,7 +912,7 @@ function NotificationsTab({ user, showToast }: any) {
       <button
         onClick={handleSave}
         disabled={saving || loading}
-        className="mt-6 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+        className="mt-6 w-full flex items-center justify-center gap-2 disabled:opacity-60 text-white text-sm font-bold py-3.5 rounded-xl transition-all" style={{background:'linear-gradient(135deg, #1d4ed8, #2563eb)', boxShadow:'0 4px 15px rgba(37,99,235,0.4)'}}
       >
         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
         Save Preferences
