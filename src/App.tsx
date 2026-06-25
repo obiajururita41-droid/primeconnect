@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { SiteNavbar, SiteFooter } from './components/layout/SiteChrome';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -82,9 +82,9 @@ function Layout() {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <HashRouter>
         <Layout />
-      </BrowserRouter>
+      </HashRouter>
     </AuthProvider>
   );
 }
