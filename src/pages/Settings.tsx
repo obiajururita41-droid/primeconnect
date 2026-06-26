@@ -27,7 +27,7 @@ interface Toast { type: 'success' | 'error'; message: string; }
 export default function Settings() {
   const { user, profile, refreshProfile, logout } = useAuth();
   const navigate = useNavigate();
-  const handleLogout = async () => { await logout(); navigate('/'); };
+  const handleLogout = async () => { await logout(); navigate('/login', { replace: true }); };
   const [activeTab, setActiveTab] = useState<TabKey>('profile');
   const [toast, setToast] = useState<Toast | null>(null);
   const [walletBalance, setWalletBalance] = useState(0);
