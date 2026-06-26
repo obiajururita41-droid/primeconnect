@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Zap, Mail, Lock, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Zap, Mail, Lock, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 
@@ -10,22 +10,48 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [pressed, setPressed] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [touched, setTouched] = useState({ email: false, password: false });
   const [form, setForm] = useState({ email: '', password: '' });
+
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
+  const passwordValid = form.password.length >= 1;
+
+  const getEmailError = () => {
+    if (!touched.email) return '';
+    if (!form.email) return 'Email address is required';
+    if (!emailValid) return 'Please enter a valid email address';
+    return '';
+  };
+
+  const getPasswordError = () => {
+    if (!touched.password) return '';
+    if (!form.password) return 'Password is required';
+    return '';
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     if (error) setError('');
   };
 
+  const handleBlur = (field: string) => {
+    setTouched(t => ({ ...t, [field]: true }));
+    setFocusedField(null);
+  };
+
   const handleSubmit = async () => {
+    setTouched({ email: true, password: true });
     if (!form.email || !form.password) return setError('Please fill in all fields.');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return setError('Enter a valid email address.');
+    if (!emailValid) return setError('Enter a valid email address.');
     setIsLoading(true);
+    setError('');
     const { error: loginError } = await login(form.email, form.password);
     setIsLoading(false);
     if (!loginError) {
+      setSuccess(true);
       const { data: { session } } = await supabase.auth.getSession();
       const u = session?.user;
       let dest = '/dashboard';
@@ -57,8 +83,8 @@ const Login = () => {
       : '0 1px 3px rgba(0,0,0,0.06)',
   });
 
-  const hasEmailError = error && !form.email;
-  const hasPasswordError = error && !form.password;
+  const hasEmailError = touched.email && !emailValid;
+  const hasPasswordError = touched.password && !passwordValid;
 
   return (
     <div className="min-h-screen flex flex-col" 
@@ -128,10 +154,20 @@ const Login = () => {
                   value={form.email}
                   onChange={handleChange}
                   onFocus={() => setFocusedField('email')}
-                  onBlur={() => setFocusedField(null)}
-                  style={inputStyle('email', !!hasEmailError)}
+                  onBlur={() => handleBlur('email')}
+                  style={inputStyle('email', !!getEmailError())}
                 />
+                {form.email && emailValid && (
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                    <CheckCircle2 size={16} className="text-green-500" />
+                  </div>
+                )}
               </div>
+              {getEmailError() && (
+                <p className="mt-1.5 text-red-500 font-medium" style={{fontSize:'12px', animation:'fadeSlideUp 0.2s ease'}}>
+                  {getEmailError()}
+                </p>
+              )}
             </div>
 
             {/* Password Field */}
@@ -155,8 +191,8 @@ const Login = () => {
                   value={form.password}
                   onChange={handleChange}
                   onFocus={() => setFocusedField('password')}
-                  onBlur={() => setFocusedField(null)}
-                  style={inputStyle('password', !!hasPasswordError)}
+                  onBlur={() => handleBlur('password')}
+                  style={inputStyle('password', !!getPasswordError())}
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
