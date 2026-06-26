@@ -91,10 +91,10 @@ const Login = () => {
 
       {/* Login Card */}
       <div className="flex-1 flex flex-col px-5 relative z-10">
-        <div className="bg-white p-6" 
+        <div className="bg-white p-7" 
           style={{
             borderRadius:'24px',
-            boxShadow:'0 32px 80px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.15)',
+            boxShadow:'0 8px 40px rgba(0,0,0,0.12), 0 2px 12px rgba(0,0,0,0.08)',
           }}>
           
           {/* Header */}
