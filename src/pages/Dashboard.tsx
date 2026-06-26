@@ -329,7 +329,7 @@ const Dashboard = () => {
                 <div className="grid grid-cols-4 gap-2">
                   {[
                     { label: "Add Money", icon: <Plus className="w-5 h-5" />, action: () => { setShowFund(true); checkVirtualAccount(); } },
-                    { label: "Transfer", icon: <Send className="w-5 h-5" />, action: () => navigate("/transfer") },
+                    { label: "Transfer", icon: <Send className="w-5 h-5" />, action: () => navigate("/send") },
                     { label: "Withdraw", icon: <ArrowUpRight className="w-5 h-5" />, action: () => navigate("/withdrawal") },
                     { label: "History", icon: <History className="w-5 h-5" />, action: () => navigate("/transactions") },
                   ].map((btn) => (
