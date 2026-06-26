@@ -358,7 +358,7 @@ function SecurityTab({ user, profile, refreshProfile, showToast }: any) {
           </button>
         </div>
       </Card>
-      <TOTPSetup user={user} showToast={showToast} />
+      <TOTPSetup user={user} profile={profile} refreshProfile={refreshProfile} showToast={showToast} />
     </div>
   );
 }
