@@ -11,6 +11,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [pressed, setPressed] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [touched, setTouched] = useState({ email: false, password: false });
@@ -59,7 +60,7 @@ const Login = () => {
         const { data: adminRow } = await supabase.from('admin_users').select('role').eq('user_id', u.id).eq('is_active', true).single();
         if (adminRow && ['admin', 'super_admin'].includes(adminRow.role)) dest = '/admin';
       }
-      navigate(dest);
+      setTimeout(() => navigate(dest), 600);
     } else {
       setError('Invalid email or password. Please try again.');
     }
@@ -208,6 +209,31 @@ const Login = () => {
               )}
             </div>
 
+            {/* Remember Me */}
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => setRememberMe(!rememberMe)}
+                className="flex items-center gap-2.5 group"
+                style={{minHeight:'44px'}}>
+                <div style={{
+                  width:'20px', height:'20px', borderRadius:'6px', flexShrink:0,
+                  background: rememberMe ? '#2563eb' : '#fff',
+                  border: `2px solid ${rememberMe ? '#2563eb' : '#cbd5e1'}`,
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  transition:'all 0.15s ease',
+                }}>
+                  {rememberMe && <span style={{color:'#fff', fontSize:'12px', fontWeight:'900'}}>✓</span>}
+                </div>
+                <span className="text-gray-600 font-medium" style={{fontSize:'13px'}}>Remember me</span>
+              </button>
+              <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl"
+                style={{background:'#f0fdf4', border:'1px solid #bbf7d0'}}>
+                <span style={{fontSize:'11px'}}>🔒</span>
+                <span className="text-green-700 font-bold" style={{fontSize:'10px', letterSpacing:'0.02em'}}>SSL SECURED</span>
+              </div>
+            </div>
+
             {/* Sign In Button */}
             <button
               onClick={handleSubmit}
@@ -238,7 +264,12 @@ const Login = () => {
                 <span className="absolute inset-0 rounded-2xl"
                   style={{background: 'rgba(255,255,255,0.08)'}} />
               )}
-              {isLoading ? (
+              {success ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span style={{fontSize:'20px'}}>✓</span>
+                  <span style={{fontSize:'15px', fontWeight:'700'}}>Success!</span>
+                </span>
+              ) : isLoading ? (
                 <span className="flex items-center justify-center gap-2.5">
                   <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   <span style={{fontSize:'15px', fontWeight:'700'}}>Signing in...</span>
