@@ -62,9 +62,9 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col" 
-      style={{background:'linear-gradient(160deg, #0f2460 0%, #1a3a8f 30%, #1d4ed8 65%, #3b82f6 100%)'}}>
+      style={{background:'linear-gradient(160deg, #0a1628 0%, #0f2460 25%, #1a3a8f 55%, #2563eb 85%, #3b82f6 100%)'}}>
       
-      {/* Decorative circles */}
+      {/* Decorative shapes */}
       <div className="absolute top-0 right-0 w-48 h-48 rounded-full opacity-10" 
         style={{background:'white', transform:'translate(30%, -30%)'}} />
       <div className="absolute top-20 left-0 w-32 h-32 rounded-full opacity-5"
@@ -72,14 +72,14 @@ const Login = () => {
 
       {/* Logo Section - compact */}
       <div className="flex flex-col items-center pt-8 pb-3 px-6 relative z-10">
-        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3"
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
           style={{
             background:'rgba(255,255,255,0.12)',
             backdropFilter:'blur(20px)',
             border:'1.5px solid rgba(255,255,255,0.25)',
             boxShadow:'0 8px 32px rgba(0,0,0,0.2)'
           }}>
-          <Zap size={28} className="text-white" />
+          <Zap size={24} className="text-white" />
         </div>
         <div className="text-center">
           <h1 className="font-black tracking-tight" style={{fontSize:'22px', color:'#fff'}}>
