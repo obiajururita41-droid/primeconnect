@@ -223,17 +223,22 @@ const Login = () => {
         </p>
 
         {/* Trust badges */}
-        <div className="flex justify-center gap-5 mt-4 pb-10">
+        <div className="flex justify-center gap-4 mt-5 pb-12">
           {[
-            { icon: '🔒', text: '100% Secure' },
-            { icon: '⚡', text: 'Instant' },
-            { icon: '🇳🇬', text: 'Made in Nigeria' },
-          ].map(b => (
-            <div key={b.text} className="flex items-center gap-1.5">
-              <span style={{fontSize:'13px'}}>{b.icon}</span>
-              <span className="text-blue-200 font-medium" style={{fontSize:'11px'}}>{b.text}</span>
+            { icon: "🔒", text: "100% Secure", sub: "Bank-grade" },
+            { icon: "⚡", text: "Instant", sub: "Real-time" },
+            { icon: "🇳🇬", text: "Nigerian", sub: "Proudly local" },
+          ].map((b, i) => (
+            <div key={b.text}
+              className="flex flex-col items-center gap-1 px-3 py-2.5 rounded-2xl"
+              style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(10px)", animation: `fadeSlideUp 0.4s ease ${0.1 + i * 0.1}s both` }}>
+              <span style={{fontSize:"18px"}}>{b.icon}</span>
+              <span className="text-white font-bold" style={{fontSize:"11px"}}>{b.text}</span>
+              <span className="text-blue-300" style={{fontSize:"9px", fontWeight:"500"}}>{b.sub}</span>
             </div>
           ))}
+        </div>
+        <style>{"@keyframes fadeSlideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }"}</style>
         </div>
       </div>
     </div>
