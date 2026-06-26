@@ -42,7 +42,7 @@ function Layout() {
 
   return (
     <>
-      {!hideChrome && <SiteNavbar />}
+      {!hideChrome && {/* SiteNavbar hidden on mobile */}}
       <Routes>
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/" element={!localStorage.getItem('onboarding_done') ? <Onboarding /> : <Home />} />
@@ -76,7 +76,7 @@ function Layout() {
         <Route path="/send" element={<ProtectedRoute><SendMoneyPage /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
       </Routes>
-      {!hideChrome && <SiteFooter />}
+      {!hideChrome && {/* SiteFooter hidden on mobile */}}
     </>
   );
 }
