@@ -87,7 +87,7 @@ const Login = () => {
   const hasPasswordError = touched.password && !passwordValid;
 
   return (
-    <div className="min-h-screen flex flex-col" 
+    <div className="min-h-screen flex flex-col overflow-y-auto"
       style={{background:'linear-gradient(160deg, #0a1628 0%, #0f2460 25%, #1a3a8f 55%, #2563eb 85%, #3b82f6 100%)'}}>
       
       {/* Decorative shapes */}
@@ -195,12 +195,17 @@ const Login = () => {
                   style={inputStyle('password', !!getPasswordError())}
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
+                  className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-xl" aria-label="Toggle password">
                   {showPassword 
-                    ? <EyeOff size={16} className="text-gray-400" /> 
-                    : <Eye size={16} className="text-gray-400" />}
+                    ? <EyeOff size={18} className="text-gray-400" /> 
+                    : <Eye size={18} className="text-gray-400" />}
                 </button>
               </div>
+              {getPasswordError() && (
+                <p className="mt-1.5 text-red-500 font-medium" style={{fontSize:'12px', animation:'fadeSlideUp 0.2s ease'}}>
+                  {getPasswordError()}
+                </p>
+              )}
             </div>
 
             {/* Sign In Button */}
@@ -273,7 +278,6 @@ const Login = () => {
               <span className="text-blue-300" style={{fontSize:"9px", fontWeight:"500"}}>{b.sub}</span>
             </div>
           ))}
-        </div>
         </div>
       </div>
     </div>
