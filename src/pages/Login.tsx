@@ -40,18 +40,21 @@ const Login = () => {
   };
 
   const inputStyle = (field: string, hasError: boolean) => ({
-    background: hasError ? '#fff5f5' : focusedField === field ? '#f0f5ff' : '#f7f9fc',
-    border: `2px solid ${hasError ? '#fca5a5' : focusedField === field ? '#2563eb' : '#e8edf5'}`,
+    background: hasError ? '#fff5f5' : '#ffffff',
+    border: `1px solid ${hasError ? '#fca5a5' : focusedField === field ? '#2563eb' : '#e2e8f0'}`,
     borderRadius: '16px',
     height: '56px',
     width: '100%',
     paddingLeft: '48px',
     paddingRight: field === 'password' ? '48px' : '16px',
-    fontSize: '14px',
+    fontSize: '15px',
     fontWeight: '500',
-    color: '#1e293b',
+    color: '#0f172a',
     outline: 'none',
     transition: 'all 0.2s ease',
+    boxShadow: focusedField === field
+      ? '0 0 0 3px rgba(37,99,235,0.12), 0 1px 3px rgba(0,0,0,0.06)'
+      : '0 1px 3px rgba(0,0,0,0.06)',
   });
 
   const hasEmailError = error && !form.email;
