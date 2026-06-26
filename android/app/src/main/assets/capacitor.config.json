@@ -1,5 +1,8 @@
 {
 	"appId": "com.primeconnect.app",
 	"appName": "PrimeConnect",
-	"webDir": "dist"
+	"webDir": "dist",
+	"android": {
+		"allowMixedContent": true
+	}
 }
