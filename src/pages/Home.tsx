@@ -4,6 +4,11 @@ import StatsSection from '../components/home/StatsSection';
 import WhyChooseUs from '../components/home/WhyChooseUs';
 
 const Home = () => {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const isApp = window.location.hostname === 'localhost' && navigator.userAgent.includes('Android');
+    if (isApp) { navigate('/login', { replace: true }); }
+  }, []);
   return (
     <div className="pt-16">
       <Hero />
