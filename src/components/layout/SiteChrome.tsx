@@ -2,35 +2,42 @@ import { useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
 
-const HIDE_CHROME_ROUTES = [
-  '/dashboard', '/transactions', '/withdrawal', '/referral',
-  '/settings', '/transfer', '/notifications', '/scan',
-  '/onboarding', '/send', '/ai-hub', '/payment',
-  '/login', '/register', '/forgot-password', '/reset-password',
-  '/services', '/admin',
-];
-
-// Detect Capacitor/mobile app environment
-const isCapacitor = () => {
-  return (
-    window.location.protocol === 'capacitor:' ||
-    (window.location.hostname === 'localhost' && 
-     (navigator.userAgent.includes('Android') || 
-      navigator.userAgent.includes('wv') ||
-      window.innerWidth <= 480))
-  );
+// Check if running as Capacitor app - store in sessionStorage to persist
+const checkIsApp = () => {
+  try {
+    // Check multiple indicators
+    if (window.location.protocol === 'capacitor:') return true;
+    if ((window as any).Capacitor) return true;
+    if (navigator.userAgent.includes('wv')) return true;
+    if (window.location.hostname === 'localhost' && navigator.userAgent.includes('Android')) return true;
+    // Store result once detected
+    const stored = sessionStorage.getItem('is_app');
+    if (stored === 'true') return true;
+    return false;
+  } catch {
+    return false;
+  }
 };
+
+// Set on load
+if (checkIsApp()) {
+  sessionStorage.setItem('is_app', 'true');
+}
+
+const IS_APP = checkIsApp();
+
+const WEBSITE_ONLY_ROUTES = ['/', '/about', '/faq', '/contact'];
 
 export function SiteNavbar() {
   const location = useLocation();
-  if (isCapacitor()) return null;
-  if (HIDE_CHROME_ROUTES.some(route => location.pathname.startsWith(route))) return null;
+  if (IS_APP) return null;
+  if (!WEBSITE_ONLY_ROUTES.includes(location.pathname)) return null;
   return <Navbar />;
 }
 
 export function SiteFooter() {
   const location = useLocation();
-  if (isCapacitor()) return null;
-  if (HIDE_CHROME_ROUTES.some(route => location.pathname.startsWith(route))) return null;
+  if (IS_APP) return null;
+  if (!WEBSITE_ONLY_ROUTES.includes(location.pathname)) return null;
   return <Footer />;
 }
