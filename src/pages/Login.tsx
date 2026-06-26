@@ -99,8 +99,8 @@ const Login = () => {
           
           {/* Header */}
           <div className="mb-5">
-            <h2 className="font-black text-gray-900" style={{fontSize:'20px'}}>Welcome back 👋</h2>
-            <p className="text-gray-400 mt-1" style={{fontSize:'13px'}}>Sign in to your PrimeConnect account</p>
+            <h2 className="font-black text-gray-900" style={{fontSize:'24px', letterSpacing:'-0.5px', lineHeight:'1.2'}}>Welcome back 👋</h2>
+            <p className="text-gray-500 mt-1.5" style={{fontSize:'14px', fontWeight:'500', lineHeight:'1.5'}}>Sign in to your PrimeConnect account</p>
           </div>
 
           {/* Error Message */}
@@ -115,8 +115,8 @@ const Login = () => {
           <div className="space-y-4">
             {/* Email Field */}
             <div>
-              <label className="block font-bold text-gray-600 mb-2 uppercase tracking-wider" 
-                style={{fontSize:'10px'}}>Email Address</label>
+              <label className="block font-bold text-gray-500 mb-2 uppercase tracking-widest" 
+                style={{fontSize:'11px', letterSpacing:'0.08em'}}>Email Address</label>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
                   <Mail size={16} style={{color: focusedField === 'email' ? '#2563eb' : hasEmailError ? '#f87171' : '#94a3b8'}} />
@@ -138,7 +138,7 @@ const Login = () => {
             <div>
               <div className="flex justify-between items-center mb-2">
                 <label className="font-bold text-gray-600 uppercase tracking-wider" 
-                  style={{fontSize:'10px'}}>Password</label>
+                  style={{fontSize:'11px', letterSpacing:'0.08em'}}>Password</label>
                 <Link to="/forgot-password" 
                   className="font-bold text-blue-600" style={{fontSize:'12px'}}>
                   Forgot password?
@@ -175,26 +175,37 @@ const Login = () => {
               onTouchStart={() => setPressed(true)}
               onTouchEnd={() => setPressed(false)}
               disabled={isLoading}
-              className="w-full text-white font-black mt-2 relative overflow-hidden"
+              className="w-full text-white font-black mt-2 relative overflow-hidden select-none"
               style={{
-                background: 'linear-gradient(135deg, #1e40af, #2563eb, #3b82f6)',
+                background: pressed
+                  ? 'linear-gradient(180deg, #1d4ed8 0%, #1e40af 100%)'
+                  : 'linear-gradient(180deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)',
                 borderRadius: '16px',
                 height: '56px',
-                fontSize: '15px',
-                boxShadow: pressed ? '0 2px 8px rgba(37,99,235,0.4)' : '0 8px 24px rgba(37,99,235,0.45)',
+                fontSize: '16px',
+                letterSpacing: '0.01em',
+                boxShadow: pressed
+                  ? '0 2px 6px rgba(37,99,235,0.3)'
+                  : '0 4px 16px rgba(37,99,235,0.4), 0 1px 4px rgba(37,99,235,0.2)',
                 transform: pressed ? 'scale(0.98)' : 'scale(1)',
-                transition: 'all 0.15s ease',
-                opacity: isLoading ? 0.8 : 1,
+                transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+                opacity: isLoading ? 0.85 : 1,
+                cursor: isLoading ? 'not-allowed' : 'pointer',
               }}>
+              {/* Ripple overlay */}
+              {pressed && (
+                <span className="absolute inset-0 rounded-2xl"
+                  style={{background: 'rgba(255,255,255,0.08)'}} />
+              )}
               {isLoading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Signing in...
+                <span className="flex items-center justify-center gap-2.5">
+                  <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span style={{fontSize:'15px', fontWeight:'700'}}>Signing in...</span>
                 </span>
               ) : (
                 <span className="flex items-center justify-center gap-2">
-                  Sign In
-                  <span style={{fontSize:'16px'}}>→</span>
+                  <span style={{fontSize:'16px', fontWeight:'800', letterSpacing:'0.02em'}}>Sign In</span>
+                  <span style={{fontSize:'18px', marginTop:'1px'}}>→</span>
                 </span>
               )}
             </button>
