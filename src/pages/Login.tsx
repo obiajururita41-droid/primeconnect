@@ -238,7 +238,7 @@ const Login = () => {
               onMouseDown={() => setPressed(true)}
               onMouseUp={() => setPressed(false)}
               onTouchStart={() => setPressed(true)}
-              onTouchEnd={() => setPressed(false)}
+              onTouchEnd={(e) => { e.preventDefault(); setPressed(false); handleSubmit(); }}
               disabled={isLoading || success}
               className="w-full text-white font-black relative overflow-hidden select-none"
               style={{
