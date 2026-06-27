@@ -8,7 +8,7 @@ import WhyChooseUs from '../components/home/WhyChooseUs';
 const Home = () => {
   const navigate = useNavigate();
   useEffect(() => {
-    const isApp = window.location.hostname === 'localhost' && navigator.userAgent.includes('Android');
+    const isApp = navigator.userAgent.includes("Android") || navigator.userAgent.includes("wv");
     if (isApp) { navigate('/login', { replace: true }); }
   }, []);
   return (
