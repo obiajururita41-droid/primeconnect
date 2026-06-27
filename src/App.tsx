@@ -45,7 +45,7 @@ function Layout() {
       {!hideChrome && <SiteNavbar />}
       <Routes>
         <Route path="/onboarding" element={<Onboarding />} />
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Onboarding />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
