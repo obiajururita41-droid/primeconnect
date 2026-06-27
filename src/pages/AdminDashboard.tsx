@@ -190,17 +190,17 @@ export default function AdminDashboard() {
 
   const statCards = [
     { label: 'Total Users',       value: stats?.totalUsers ?? 0,                                    icon: <Users className="w-5 h-5" />,         color: 'bg-blue-500',   trend: '' },
-    { label: 'Wallet Balance',    value: `₦${(stats?.totalWalletBalance ?? 0).toLocaleString()}`,   icon: <Wallet className="w-5 h-5" />,        color: 'bg-green-500',  trend: '' },
-    { label: 'Total Revenue',     value: `₦${(stats?.totalRevenue ?? 0).toLocaleString()}`,         icon: <TrendingUp className="w-5 h-5" />,     color: 'bg-purple-500', trend: '' },
-    { label: 'Transactions',      value: stats?.totalTransactions ?? 0,                             icon: <ArrowUpRight className="w-5 h-5" />,  color: 'bg-orange-500', trend: '' },
-    { label: 'Pending Gift Cards',value: stats?.pendingGiftCards ?? 0,                              icon: <Gift className="w-5 h-5" />,          color: 'bg-pink-500',   trend: '' },
-    { label: "Today's Activity",  value: stats?.todayTransactions ?? 0,                             icon: <Activity className="w-5 h-5" />,      color: 'bg-teal-500',   trend: '' },
+    { label: 'Wallet Balance',    value: `₦${(stats?.totalWalletBalance ?? 0).toLocaleString()}`,   icon: <Wallet className="w-5 h-5" />,        color: 'bg-blue-600',  trend: '' },
+    { label: 'Total Revenue',     value: `₦${(stats?.totalRevenue ?? 0).toLocaleString()}`,         icon: <TrendingUp className="w-5 h-5" />,     color: 'bg-blue-700', trend: '' },
+    { label: 'Transactions',      value: stats?.totalTransactions ?? 0,                             icon: <ArrowUpRight className="w-5 h-5" />,  color: 'bg-blue-800', trend: '' },
+    { label: 'Pending Gift Cards',value: stats?.pendingGiftCards ?? 0,                              icon: <Gift className="w-5 h-5" />,          color: 'bg-indigo-600',   trend: '' },
+    { label: "Today's Activity",  value: stats?.todayTransactions ?? 0,                             icon: <Activity className="w-5 h-5" />,      color: 'bg-indigo-700',   trend: '' },
   ];
 
   const quickActions = [
     { label: 'Approve Gift Cards', icon: <Gift className="w-5 h-5" />,         color: 'bg-pink-50 text-pink-600',   onClick: () => setTab('giftcards') },
     { label: 'Manage Users',       icon: <Users className="w-5 h-5" />,        color: 'bg-blue-50 text-blue-600',   onClick: () => setTab('users') },
-    { label: 'Transactions',       icon: <Wallet className="w-5 h-5" />,       color: 'bg-green-50 text-green-600', onClick: () => setTab('transactions') },
+    { label: 'Transactions',       icon: <Wallet className="w-5 h-5" />,       color: 'bg-blue-50 text-blue-600', onClick: () => setTab('transactions') },
     { label: 'Refresh Data',       icon: <RefreshCw className="w-5 h-5" />,    color: 'bg-gray-50 text-gray-600',   onClick: fetchAll },
   ];
 
@@ -998,7 +998,7 @@ export default function AdminDashboard() {
                 {[
                   { label: 'Pending', count: withdrawals.filter(w => w.status === 'pending').length, color: 'bg-yellow-50 text-yellow-600' },
                   { label: 'Approved', count: withdrawals.filter(w => w.status === 'approved').length, color: 'bg-blue-50 text-blue-600' },
-                  { label: 'Completed', count: withdrawals.filter(w => w.status === 'completed').length, color: 'bg-green-50 text-green-600' },
+                  { label: 'Completed', count: withdrawals.filter(w => w.status === 'completed').length, color: 'bg-blue-50 text-blue-600' },
                   { label: 'Rejected', count: withdrawals.filter(w => w.status === 'rejected' || w.status === 'failed').length, color: 'bg-red-50 text-red-600' },
                 ].map((s) => (
                   <div key={s.label} className={`${s.color} rounded-xl p-2 text-center`}>
