@@ -48,6 +48,8 @@ const Dashboard = () => {
   const [copied, setCopied] = useState(false);
   const [showBalance, setShowBalance] = useState(true);
   const [showFund, setShowFund] = useState(false);
+  const [banners, setBanners] = useState<any[]>([]);
+  const [bannerIndex, setBannerIndex] = useState(0);
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
@@ -345,6 +347,33 @@ const Dashboard = () => {
             </div>
           )}
         </div>
+        {/* Banner Carousel */}
+        {banners.length > 0 && (
+          <div className="mx-4 mb-4">
+            <div className="relative overflow-hidden rounded-3xl" style={{ background: banners[bannerIndex]?.bg_color ?? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' }}>
+              <div className="p-5 relative">
+                <div className="absolute -right-6 -top-6 w-32 h-32 rounded-full bg-white/10" />
+                <div className="absolute right-4 bottom-0 w-20 h-20 rounded-full bg-white/5" />
+                <div className="relative">
+                  <p className="text-4xl mb-2">{banners[bannerIndex]?.emoji}</p>
+                  <h3 className="text-white font-black text-lg leading-tight mb-1">{banners[bannerIndex]?.title}</h3>
+                  <p className="text-white/70 text-xs mb-4">{banners[bannerIndex]?.subtitle}</p>
+                  <button onClick={() => navigate(banners[bannerIndex]?.cta_link ?? '/services')}
+                    className="bg-white text-blue-600 font-black text-xs px-4 py-2.5 rounded-xl active:scale-95 transition-all">
+                    {banners[bannerIndex]?.cta_text} →
+                  </button>
+                </div>
+              </div>
+              <div className="flex justify-center gap-1.5 pb-3">
+                {banners.map((_: any, i: number) => (
+                  <button key={i} onClick={() => setBannerIndex(i)}
+                    className="h-1.5 rounded-full transition-all"
+                    style={{ width: i === bannerIndex ? 20 : 6, background: i === bannerIndex ? 'white' : 'rgba(255,255,255,0.4)' }} />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
         <div className="mx-4 mb-4">
           <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
